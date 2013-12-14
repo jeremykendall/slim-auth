@@ -1,0 +1,56 @@
+{
+    "name": "jeremykendall/slim-auth",
+    "description": "Authorization and authentication for the Slim Framework using ZF2 Authentication and Acl components",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jeremy Kendall",
+            "homepage": "http://about.me/jeremykendall",
+            "role": "Developer"
+        }
+    ],
+    "keywords": ["auth", "authorization", "authentication", "slim", "slim framework", "zend", "zend framework", "zf2"],
+    "repositories": [
+    {
+        "type": "composer",
+        "url": "http://packages.zendframework.com/"
+    },
+    {
+        "type": "package",
+        "package": {
+            "name": "openwall/phpass",
+            "version": "0.3",
+            "dist": {
+                "url": "http://www.openwall.com/phpass/phpass-0.3.tar.gz",
+                "type": "tar"
+            },
+            "autoload": {
+                "classmap": ["PasswordHash.php"]
+            }
+        }
+    }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zend-authentication": "2.*",
+        "zendframework/zend-permissions-acl": "2.*",
+        "zendframework/zend-session": "2.*"
+    },
+    "require-dev": {
+        "openwall/phpass": "0.3",
+        "ircmaxell/password-compat": "1.*",
+        "phpunit/phpunit": "3.*",
+        "slim/slim": "~2.4",
+        "zendframework/zend-db": "2.*"
+    },
+    "autoload": {
+        "psr-0": 
+        {
+            "JeremyKendall\\Slim\\Auth\\": "src/"
+        }
+    },
+    "target-dir": "JeremyKendall/Slim/Auth",
+    "suggest": {
+        "zendframework/zend-db": "(For the Zend Db Auth Adapters)"
+    }
+}

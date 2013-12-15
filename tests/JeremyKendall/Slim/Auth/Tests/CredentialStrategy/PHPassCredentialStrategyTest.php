@@ -3,7 +3,6 @@
 namespace JeremyKendall\Slim\Auth\Tests\CredentialStrategy;
 
 use JeremyKendall\Slim\Auth\CredentialStrategy\PHPassCredentialStrategy;
-use PasswordHash;
 
 class PHPassCredentialStrategyTest extends \PHPUnit_Framework_TestCase
 {

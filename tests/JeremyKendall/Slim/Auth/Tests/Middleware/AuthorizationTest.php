@@ -31,13 +31,6 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         parent::setUp();
-        $config = array(
-            'login.url' => '/login',
-            'secured.urls' => array(
-                array('path' => '/admin'),
-                array('path' => '/admin/.+')
-            )
-        );
         $this->auth = $this->getMock('Zend\Authentication\AuthenticationService');
         $this->acl = $this->getConfiguredAcl();
         $this->identity = array('role' => 'admin');
@@ -57,22 +50,39 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
             'PATH_INFO' => '/'
         ));
 
+        $this->auth->expects($this->once())
+            ->method('getIdentity')
+            ->will($this->returnValue(null));
+
         $app = new \Slim\Slim();
-
-        $app->get('/', function () {
-            echo 'Success';
-        });
-
+        $app->get('/', function () {});
         $app->get('/login', function () {})->name('login');
+        $app->add($this->middleware);
+        $app->run();
+
+        $response = $app->response();
+
+        $this->assertTrue($response->isOk());
+    }
+
+    public function testVisitPhotosPageWithRouteParamsSucceeds()
+    {
+        \Slim\Environment::mock(array(
+            'PATH_INFO' => '/photos/5893058038530'
+        ));
 
         $this->auth->expects($this->once())
             ->method('getIdentity')
             ->will($this->returnValue(null));
 
-        $this->middleware->setApplication($app);
-        $this->middleware->setNextMiddleware($app);
-        $this->middleware->call();
+        $app = new \Slim\Slim();
+        $app->get('/photos/:photoId', function ($photoId) {});
+        $app->get('/login', function () {})->name('login');
+        $app->add($this->middleware);
+        $app->run();
+
         $response = $app->response();
+
         $this->assertTrue($response->isOk());
     }
 
@@ -82,36 +92,81 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
             'PATH_INFO' => '/admin'
         ));
 
-        $app = new \Slim\Slim();
-
-        $app->get('/admin', function () {
-            echo 'Y U NO LOGGED IN';
-        });
-
-        $app->get('/login', function () {})->name('login');
-
         $this->auth->expects($this->once())
             ->method('getIdentity')
             ->will($this->returnValue(null));
 
-        $this->middleware->setApplication($app);
-        $this->middleware->setNextMiddleware($app);
-        $this->middleware->call();
+        $app = new \Slim\Slim();
+        $app->get('/admin', function () {});
+        $app->get('/login', function () {})->name('login');
+        $app->add($this->middleware);
+        $app->run();
+
         $response = $app->response();
+
         $this->assertTrue($response->isRedirect());
         $this->assertEquals(302, $response->status());
         $this->assertEquals('/login', $response->header('location'));
     }
 
-    public function testAuthenticatedMemberVisitDeniedResourceReturns403()
+    public function testPermissionsWhichIncludePrivileges()
     {
+        $this->markTestSkipped(
+            "Haven't sorted this out yet. Seems there's '
+            . 'no simple way to use privileges."
+        );
+
+        \Slim\Environment::mock(array(
+            'PATH_INFO' => '/member/avatar'
+        ));
+
+        $this->auth->expects($this->once())
+            ->method('getIdentity')
+            ->will($this->returnValue(array('role' => 'member')));
+
+        $app = new \Slim\Slim();
+        $app->get('/member/avatar', function () {});
+        $app->get('/login', function () {})->name('login');
+        $app->add($this->middleware);
+        $app->run();
+
+        $response = $app->response();
+
+        $this->assertTrue($response->isOk());
+    }
+
+    public function testRouteWithOptionalParamsNotProvided()
+    {
+        \Slim\Environment::mock(array(
+            'PATH_INFO' => '/member/photos'
+        ));
+
+        $this->auth->expects($this->once())
+            ->method('getIdentity')
+            ->will($this->returnValue(array('role' => 'member')));
+
+        $app = new \Slim\Slim();
+        $app->get('/member/photos(/:page)', function () {});
+        $app->get('/login', function () {})->name('login');
+        $app->add($this->middleware);
+        $app->run();
+
+        $response = $app->response();
+
+        $this->assertTrue($response->isOk());
+    }
+
+    public function testAuthenticatedMemberVisitDeniedResourceReturnsThrowsException()
+    {
+        $this->setExpectedException(
+            'JeremyKendall\Slim\Auth\Exception\HttpForbiddenException',
+            'You are not authorized to access this resource',
+            403
+        );
+
         \Slim\Environment::mock(array(
             'PATH_INFO' => '/admin'
         ));
-
-        $app = new \Slim\Slim();
-        $app->get('/admin', function () {});
-        $app->get('/login', function () {})->name('login');
 
         $this->auth->expects($this->once())
             ->method('hasIdentity')
@@ -119,12 +174,17 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $this->auth->expects($this->once())
             ->method('getIdentity')
-            ->will($this->returnValue(new Identity('member')));
+            ->will($this->returnValue(array('role' => 'member')));
 
-        $this->middleware->setApplication($app);
-        $this->middleware->setNextMiddleware($app);
-        $this->middleware->call();
-        $this->assertEquals(403, $app->response->isForbidden());
+        $app = new \Slim\Slim(array('debug' => false));
+        $app->get('/admin', function () {});
+        $app->get('/login', function () {})->name('login');
+        $app->add($this->middleware);
+        // Ensure exception gets thrown in a manner I can test here
+        $app->error(function(\Exception $e) {
+            throw $e;
+        });
+        $app->run();
     }
 
     /**
@@ -138,23 +198,47 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
             'PATH_INFO' => '/admin'
         ));
 
-        $app = new \Slim\Slim();
-
-        $app->get('/admin', function () {
-            echo 'Success';
-        });
-
-        $app->get('/login', function () {})->name('login');
-
         $this->auth->expects($this->once())
             ->method('getIdentity')
             ->will($this->returnValue($identity));
 
-        $this->middleware->setApplication($app);
-        $this->middleware->setNextMiddleware($app);
-        $this->middleware->call();
+        $app = new \Slim\Slim();
+        $app->get('/admin', function () {});
+        $app->get('/login', function () {})->name('login');
+        $app->add($this->middleware);
+        $app->run();
+
         $response = $app->response();
+
         $this->assertTrue($response->isOk());
+    }
+
+    public function testVisitAdminSettingsPageLoggedInSucceeds()
+    {
+        \Slim\Environment::mock(array(
+            'PATH_INFO' => '/admin/settings'
+        ));
+
+        $this->auth->expects($this->once())
+            ->method('getIdentity')
+            ->will($this->returnValue(array('role' => 'admin')));
+
+        $app = new \Slim\Slim();
+        $app->get('/admin/settings', function () {});
+        $app->get('/login', function () {})->name('login');
+        $app->add($this->middleware);
+        $app->run();
+
+        $response = $app->response();
+
+        $this->assertTrue($response->isOk());
+    }
+
+    public function testAdminPermissions()
+    {
+        $this->assertTrue($this->acl->isAllowed('admin', '/admin'));
+        $this->assertTrue($this->acl->isAllowed('admin', '/admin/settings'));
+        //$this->assertTrue($this->acl->isAllowed('admin', '/admin/users'));
     }
 
     public function identityDataProvider()
@@ -198,16 +282,24 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $acl->addRole(new Role('admin'));
 
         $acl->addResource('/');
-        $acl->addResource('/admin');
         $acl->addResource('/login');
+        $acl->addResource('/logout');
+        $acl->addResource('/member');
+        $acl->addResource('/member/photos(/:page)');
+        $acl->addResource('/photos/:photoId');
 
-        $acl->allow('guest', null, '/');
-        $acl->allow('guest', null, '/login');
-        $acl->deny('guest', null, '/admin');
+        // Admin resources
+        $acl->addResource('/admin');
+        $acl->addResource('/admin/settings');
 
-        $acl->allow('member', null, '/member/profile');
-        $acl->allow('member', null, '/logout');
-        $acl->deny('member', null, '/admin');
+        $acl->allow('guest', '/');
+        $acl->allow('guest', '/login');
+        $acl->allow('guest', '/photos/:photoId');
+        $acl->deny('guest', '/admin');
+
+        $acl->allow('member', '/logout');
+        $acl->allow('member', '/member/photos(/:page)');
+        $acl->deny('member', '/admin');
 
         // admin gets everything
         $acl->allow('admin');

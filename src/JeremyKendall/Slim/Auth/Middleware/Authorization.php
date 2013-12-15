@@ -10,6 +10,7 @@
 
 namespace JeremyKendall\Slim\Auth\Middleware;
 
+use JeremyKendall\Slim\Auth\Exception\HttpForbiddenException;
 use Zend\Authentication\AuthenticationService;
 use Zend\Permissions\Acl\Acl;
 
@@ -63,11 +64,12 @@ class Authorization extends \Slim\Middleware
         $role = $this->getRole($auth->getIdentity());
 
         $isAuthorized = function () use ($app, $auth, $acl, $role) {
-            $isAllowed = $acl->isAllowed($role, null, $app->request->getPathInfo());
+            $currentRoute = $app->router->getCurrentRoute();
+            $isAllowed = $acl->isAllowed($role, $currentRoute->getPattern());
             $hasIdentity = $auth->hasIdentity();
 
             if ($hasIdentity && !$isAllowed) {
-                return $app->halt(403, 'You are not authorized to access this resource');
+                throw new HttpForbiddenException();
             }
 
             if (!$hasIdentity && !$isAllowed) {
@@ -75,7 +77,7 @@ class Authorization extends \Slim\Middleware
             }
         };
 
-        $app->hook('slim.before.router', $isAuthorized);
+        $app->hook('slim.before.dispatch', $isAuthorized);
 
         $this->next->call();
     }

@@ -32,6 +32,7 @@
     ],
     "require": {
         "php": ">=5.3.3",
+        "symfony/event-dispatcher": "2.3.*",
         "zendframework/zend-authentication": "2.*",
         "zendframework/zend-permissions-acl": "2.*",
         "zendframework/zend-session": "2.*"

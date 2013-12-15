@@ -1,9 +1,22 @@
 <?php
 
+/**
+ * Slim Auth
+ *
+ * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
+ * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
+ * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
+ */
 namespace JeremyKendall\Slim\Auth\CredentialStrategy;
 
 use JeremyKendall\Slim\Auth\CredentialStrategy\CredentialStrategyInterface;
 
+/**
+ * Credential strategy using PHP's native hashing library
+ *
+ * If PHP version < 5.5, uses password_compat
+ * @link https://github.com/ircmaxell/password_compat password_compat
+ */
 class PhpCredentialStrategy implements CredentialStrategyInterface
 {
     /**

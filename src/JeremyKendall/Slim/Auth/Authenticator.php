@@ -1,9 +1,19 @@
 <?php
 
+/**
+ * Slim Auth
+ *
+ * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
+ * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
+ * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
+ */
 namespace JeremyKendall\Slim\Auth;
 
 use Zend\Authentication\AuthenticationService;
 
+/**
+ * Authenticates users
+ */
 class Authenticator
 {
     /**
@@ -12,9 +22,9 @@ class Authenticator
     private $auth;
 
     /**
-        * Public constructor
-        *
-        * @param AuthenticationService $auth
+     * Public constructor
+     *
+     * @param AuthenticationService $auth
      */
     public function __construct(AuthenticationService $auth)
     {

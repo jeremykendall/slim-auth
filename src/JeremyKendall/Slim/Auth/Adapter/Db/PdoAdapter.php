@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Slim Auth
+ *
+ * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
+ * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
+ * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
+ */
+
 namespace JeremyKendall\Slim\Auth\Adapter\Db;
 
 use JeremyKendall\Slim\Auth\CredentialStrategy\CredentialStrategyInterface as CredentialStrategy;
@@ -9,41 +17,38 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Zend\Authentication\Adapter\AbstractAdapter;
 use Zend\Authentication\Result;
 
+/**
+ * Authentication adapter
+ */
 class PdoAdapter extends AbstractAdapter
 {
     /**
-     * @var PDO
+     * @var PDO DB connection
      */
     private $db;
 
     /**
-     * @var CredentialStrategy
+     * @var CredentialStrategy Strategy for handling credential treatment
      */
     private $credentialStrategy;
 
     /**
-     * @var EventDispatcher
+     * @var EventDispatcher Symfony event dispatcher
      */
     private $dispatcher;
 
     /**
-     * $tableName - the table name to check
-     *
-     * @var string
+     * @var string the table name to check
      */
     private $tableName;
 
     /**
-     * $identityColumn - the column to use as the identity
-     *
-     * @var string
+     * @var string the column to use as the identity
      */
     private $identityColumn;
 
     /**
-     * $credentialColumn - column to be used as the credential
-     *
-     * @var string
+     * @var string column to be used as the credential
      */
     private $credentialColumn;
 
@@ -146,7 +151,7 @@ class PdoAdapter extends AbstractAdapter
     /**
      * Get tableName
      *
-     * @return tableName
+     * @return string tableName
      */
     public function getTableName()
     {
@@ -156,7 +161,7 @@ class PdoAdapter extends AbstractAdapter
     /**
      * Get identityColumn
      *
-     * @return identityColumn
+     * @return string identityColumn
      */
     public function getIdentityColumn()
     {
@@ -166,7 +171,7 @@ class PdoAdapter extends AbstractAdapter
     /**
      * Get credentialColumn
      *
-     * @return credentialColumn
+     * @return string credentialColumn
      */
     public function getCredentialColumn()
     {

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdoc>
+    <title>Slim Auth</title>
+    <parser>
+        <target>./build/docs</target>
+        <extensions>
+            <extension>php</extension>
+        </extensions>
+    </parser>
+    <transformer>
+        <target>./build/docs</target>
+    </transformer>
+    <files>
+        <directory>./src</directory>
+    </files>
+    <transformations>
+        <template name="responsive"/>
+    </transformations>
+    <logging>
+        <level>quiet</level>
+    </logging>
+</phpdoc>

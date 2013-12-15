@@ -1,10 +1,25 @@
 <?php
 
+/**
+ * Slim Auth
+ *
+ * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
+ * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
+ * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
+ */
+
 namespace JeremyKendall\Slim\Auth\Event;
 
 use PDO;
 use Symfony\Component\EventDispatcher\Event;
 
+/**
+ * Event dispatched after password is validated
+ *
+ * Intended to be used to facilitate password rehashing. The User array should
+ * contain the user's current password hash and enough identifying info that
+ * the PDO connection can be used to update the password hash in the database.
+ */
 class PasswordValidatedEvent extends Event
 {
     /**

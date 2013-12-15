@@ -3,9 +3,9 @@
 /**
  * Slim Auth
  *
- * @link      http://github.com/jeremykendall/slim-auth for the canonical source repository
+ * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
  * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
- * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT License
+ * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
 
 namespace JeremyKendall\Slim\Auth\Middleware;
@@ -16,8 +16,10 @@ use Zend\Permissions\Acl\Acl;
 /**
  * Authorization middleware
  *
- * Checks if user is authorized to access the requested URI. Will redirect
- * user to login route if they attempt to visit a denied URI.
+ * Checks if user is authorized to access the requested URI.
+ *
+ * Will redirect a guest to name login route if they attempt to visit a secured URI.
+ * Returns HTTP 403 if authenticated user visits a URI they are not authorized for.
  */
 class Authorization extends \Slim\Middleware
 {
@@ -78,8 +80,14 @@ class Authorization extends \Slim\Middleware
         $this->next->call();
     }
 
-    private function getRole($identity = null) {
-
+    /**
+     * Gets role from user's identity.
+     *
+     * @param  mixed  $identity User's identity. If null, returns role 'guest'
+     * @return string User's role
+     */
+    private function getRole($identity = null)
+    {
         $role = null;
 
         if (is_object($identity)) {

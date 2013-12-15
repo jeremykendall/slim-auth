@@ -97,10 +97,11 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->setCredential('bad password');
 
         $result = $this->adapter->authenticate();
+        $messages = $result->getMessages();
 
         $this->assertFalse($result->isValid());
         $this->assertEquals(Result::FAILURE_CREDENTIAL_INVALID, $result->getCode());
-        $this->assertEquals('Invalid username or password provided', $result->getMessages()[0]);
+        $this->assertEquals('Invalid username or password provided', $messages[0]);
     }
 
     public function testAuthenticationFailsUserNotFound()
@@ -112,10 +113,11 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter->setCredential('dumb password');
 
         $result = $this->adapter->authenticate();
+        $messages = $result->getMessages();
 
         $this->assertFalse($result->isValid());
         $this->assertEquals(Result::FAILURE_IDENTITY_NOT_FOUND, $result->getCode());
-        $this->assertEquals('User not found.', $result->getMessages()[0]);
+        $this->assertEquals('User not found.', $messages[0]);
     }
 
     private function setUpDb()

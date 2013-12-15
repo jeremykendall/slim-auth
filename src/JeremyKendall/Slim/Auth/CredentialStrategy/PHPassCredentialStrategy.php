@@ -7,6 +7,7 @@
  * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
+
 namespace JeremyKendall\Slim\Auth\CredentialStrategy;
 
 use JeremyKendall\Slim\Auth\CredentialStrategy\CredentialStrategyInterface;

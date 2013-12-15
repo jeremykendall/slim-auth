@@ -52,8 +52,8 @@
     },
     "target-dir": "JeremyKendall/Slim/Auth",
     "suggest": {
-        "ircmaxell/password-compat": "(To use the PHPCredentialStrategy)",
-        "Openwall PHPass": "(To use the PHPassCredentialStrategy. Review the jeremykendall/slim-auth composer.json for how to install via Composer.)",
-        "zendframework/zend-db": "(For the Zend Db Auth Adapters)"
+        "ircmaxell/password-compat": "To use the PHPCredentialStrategy",
+        "Openwall PHPass": "For the PHPassCredentialStrategy. Review the jeremykendall/slim-auth composer.json for how to install via Composer.",
+        "zendframework/zend-db": "For the Zend\\Authentication\\Adapter\\DbTable adapters."
     }
 }

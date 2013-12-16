@@ -64,9 +64,10 @@ class Authorization extends \Slim\Middleware
         $role = $this->getRole($auth->getIdentity());
 
         $isAuthorized = function () use ($app, $auth, $acl, $role) {
-            $currentRoute = $app->router->getCurrentRoute();
-            $isAllowed = $acl->isAllowed($role, $currentRoute->getPattern());
+            $resource = $app->router->getCurrentRoute()->getPattern();
+            $privilege = $app->request->getMethod();
             $hasIdentity = $auth->hasIdentity();
+            $isAllowed = $acl->isAllowed($role, $resource, $privilege);
 
             if ($hasIdentity && !$isAllowed) {
                 throw new HttpForbiddenException();

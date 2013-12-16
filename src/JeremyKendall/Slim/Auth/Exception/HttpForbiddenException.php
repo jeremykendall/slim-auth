@@ -21,8 +21,8 @@ class HttpForbiddenException extends AuthException
      * {@inheritDoc}
      */
     public function __construct(
-        $message = 'You are not authorized to access this resource', 
-        $code = 403, 
+        $message = 'You are not authorized to access this resource',
+        $code = 403,
         \Exception $previous = null
     )
     {

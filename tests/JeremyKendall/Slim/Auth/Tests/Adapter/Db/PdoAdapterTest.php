@@ -61,19 +61,43 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('password', $this->adapter->getCredentialColumn());
     }
 
-    public function testAuthenticationSuccess()
+    public function testAuthenticationSuccessWithDispatcher()
     {
+        $this->adapter->setDispatcher($this->dispatcher);
+        $this->user['id'] = '1';
+
         $this->credentialStrategy->expects($this->once())
             ->method('verifyPassword')
             ->with('00101010', 'passwordHash')
             ->will($this->returnValue(true));
 
-        $this->user['id'] = '1';
-
         $this->dispatcher->expects($this->once())
             ->method('dispatch')
             ->with('user.password_validated', new PasswordValidatedEvent($this->user, $this->db))
             ->will($this->returnValue(true));
+
+        $this->adapter->setIdentity('arthur.dent@example.com');
+        $this->adapter->setCredential('00101010');
+
+        $result = $this->adapter->authenticate();
+
+        unset($this->user['password']);
+
+        $this->assertTrue($result->isValid());
+        $this->assertEquals($this->user, $result->getIdentity());
+    }
+
+    public function testAuthenticationSuccessWithoutDispatcher()
+    {
+        $this->user['id'] = '1';
+
+        $this->credentialStrategy->expects($this->once())
+            ->method('verifyPassword')
+            ->with('00101010', 'passwordHash')
+            ->will($this->returnValue(true));
+
+        $this->dispatcher->expects($this->never())
+            ->method('dispatch');
 
         $this->adapter->setIdentity('arthur.dent@example.com');
         $this->adapter->setCredential('00101010');
@@ -172,7 +196,6 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter = new PdoAdapter(
             $this->db, 
             $this->credentialStrategy, 
-            $this->dispatcher,
             'users', 
             'emailCanonical', 
             'password'

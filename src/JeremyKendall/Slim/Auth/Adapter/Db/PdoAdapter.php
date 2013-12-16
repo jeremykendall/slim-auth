@@ -57,7 +57,6 @@ class PdoAdapter extends AbstractAdapter
      *
      * @param PDO                $db
      * @param CredentialStrategy $credentialStrategy
-     * @param EventDispatcher    $dispatcher
      * @param string             $tableName
      * @param string             $identityColumn
      * @param string             $credentialColumn
@@ -65,7 +64,6 @@ class PdoAdapter extends AbstractAdapter
     public function __construct(
         PDO $db,
         CredentialStrategy $credentialStrategy,
-        EventDispatcher $dispatcher,
         $tableName,
         $identityColumn,
         $credentialColumn
@@ -73,7 +71,6 @@ class PdoAdapter extends AbstractAdapter
     {
         $this->db = $db;
         $this->credentialStrategy = $credentialStrategy;
-        $this->dispatcher = $dispatcher;
         $this->tableName = $tableName;
         $this->identityColumn = $identityColumn;
         $this->credentialColumn = $credentialColumn;
@@ -104,8 +101,10 @@ class PdoAdapter extends AbstractAdapter
             ->verifyPassword($this->getCredential(), $user['password']);
 
         if ($passwordValid) {
-            $event = new PasswordValidatedEvent($user, $this->db);
-            $this->dispatcher->dispatch('user.password_validated', $event);
+            if ($this->getDispatcher()) {
+                $event = new PasswordValidatedEvent($user, $this->db);
+                $this->dispatcher->dispatch('user.password_validated', $event);
+            }
 
             // Don't store password in identity
             unset($user['password']);
@@ -186,5 +185,25 @@ class PdoAdapter extends AbstractAdapter
     public function getCredentialStrategy()
     {
         return $this->credentialStrategy;
+    }
+    
+    /**
+     * Get dispatcher
+     *
+     * @return EventDispatcher dispatcher
+     */
+    public function getDispatcher()
+    {
+        return $this->dispatcher;
+    }
+    
+    /**
+     * Set dispatcher
+     *
+     * @param EventDispatcher $dispatcher the value to set
+     */
+    public function setDispatcher(EventDispatcher $dispatcher)
+    {
+        $this->dispatcher = $dispatcher;
     }
 }

@@ -47,7 +47,7 @@
     "autoload": {
         "psr-0": 
         {
-            "JeremyKendall\\Slim\\Auth\\": "src/"
+            "JeremyKendall\\Slim\\Auth\\": ""
         }
     },
     "target-dir": "JeremyKendall/Slim/Auth",

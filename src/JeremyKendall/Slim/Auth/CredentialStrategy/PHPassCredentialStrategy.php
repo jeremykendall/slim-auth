@@ -20,7 +20,7 @@ use PasswordHash;
 class PHPassCredentialStrategy implements CredentialStrategyInterface
 {
     /**
-     * @var PasswordHash
+     * @var PasswordHash PHPass hasher
      */
     private $hasher;
 

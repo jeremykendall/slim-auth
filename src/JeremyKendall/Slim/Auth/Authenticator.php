@@ -18,7 +18,7 @@ use Zend\Authentication\AuthenticationService;
 class Authenticator
 {
     /**
-     * @var AuthenticationService
+     * @var AuthenticationService ZF Authentication Service
      */
     private $auth;
 

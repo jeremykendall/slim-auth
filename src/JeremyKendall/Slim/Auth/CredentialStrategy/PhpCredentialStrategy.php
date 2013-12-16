@@ -63,7 +63,7 @@ class PhpCredentialStrategy implements CredentialStrategyInterface
      *
      * If the answer is true, after validating the password using password_verify, rehash it.
      *
-     * @param  string  $hash The hash to test
+     * @param  string  $password The password to test
      * @return boolean True if the password needs to be rehashed.
      */
     public function needsRehash($password)

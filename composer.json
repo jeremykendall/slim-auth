@@ -50,7 +50,6 @@
             "JeremyKendall\\Slim\\Auth\\": "src/"
         }
     },
-    "target-dir": "JeremyKendall/Slim/Auth",
     "suggest": {
         "Openwall PHPass": "For the PHPassCredentialStrategy. Review the jeremykendall/slim-auth composer.json for how to install via Composer.",
         "ircmaxell/password-compat": "To use the PHPCredentialStrategy",

@@ -34,14 +34,32 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
      */
     private $dispatcher;
 
+    /**
+     * @var string identity/credential table name
+     */
+    private $tableName;
+
+    /**
+     * @var string credential column
+     */
+    private $credentialColumn;
+
+    /**
+     * @var string identity column
+     */
+    private $identityColumn;
+
     protected function setUp()
     {
         parent::setUp();
+        $this->tableName = 'user_table';
+        $this->credentialColumn = 'user_password';
+        $this->identityColumn = 'user_unique_email';
+
         $this->user = array(
-            'email' => 'Arthur.Dent@Example.Com',
-            'emailCanonical' => 'arthur.dent@example.com',
+            $this->identityColumn => 'arthur.dent@example.com',
             'role' => 'hapless protagonist',
-            'password' => 'passwordHash',
+            $this->credentialColumn => 'passwordHash',
         );
         $this->setUpDb();
         $this->setUpAdapter();
@@ -56,9 +74,9 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame($this->db, $this->adapter->getDb());
         $this->assertSame($this->credentialStrategy, $this->adapter->getCredentialStrategy());
-        $this->assertEquals('users', $this->adapter->getTableName());
-        $this->assertEquals('emailCanonical', $this->adapter->getIdentityColumn());
-        $this->assertEquals('password', $this->adapter->getCredentialColumn());
+        $this->assertEquals($this->tableName, $this->adapter->getTableName());
+        $this->assertEquals($this->identityColumn, $this->adapter->getIdentityColumn());
+        $this->assertEquals($this->credentialColumn, $this->adapter->getCredentialColumn());
     }
 
     public function testAuthenticationSuccessWithDispatcher()
@@ -81,7 +99,7 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 
         $result = $this->adapter->authenticate();
 
-        unset($this->user['password']);
+        unset($this->user[$this->credentialColumn]);
 
         $this->assertTrue($result->isValid());
         $this->assertEquals($this->user, $result->getIdentity());
@@ -104,7 +122,7 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 
         $result = $this->adapter->authenticate();
 
-        unset($this->user['password']);
+        unset($this->user[$this->credentialColumn]);
 
         $this->assertTrue($result->isValid());
         $this->assertEquals($this->user, $result->getIdentity());
@@ -158,17 +176,25 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
             die(sprintf('DB connection error: %s', $e->getMessage()));
         }
 
-        $create = 'CREATE TABLE IF NOT EXISTS [users] ( '
+        $create = 'CREATE TABLE IF NOT EXISTS [%s] ( '
             . '[id] INTEGER  NOT NULL PRIMARY KEY, '
-            . '[email] VARCHAR(50) NOT NULL, '
-            . '[emailCanonical] VARCHAR(50) NOT NULL, '
+            . '[%s] VARCHAR(50) NOT NULL, '
             . '[role] VARCHAR(50) NOT NULL, '
-            . '[password] VARCHAR(255) NULL)';
+            . '[%s] VARCHAR(255) NULL)';
+        $create = sprintf($create, $this->tableName, $this->identityColumn, $this->credentialColumn);
 
-        $delete = 'DELETE FROM users';
+        $delete = sprintf('DELETE FROM %s', $this->tableName);
 
-        $insert = 'INSERT INTO users (email, emailCanonical, role, password) '
-            . 'VALUES (:email, :emailCanonical, :role, :password)';
+        $insert = 'INSERT INTO %s (%s, role, %s) '
+            . 'VALUES (:%s, :role, :%s)';
+        $insert = sprintf(
+            $insert,
+            $this->tableName,
+            $this->identityColumn,
+            $this->credentialColumn,
+            $this->identityColumn,
+            $this->credentialColumn
+        );
 
         try {
             $this->db->exec($create);
@@ -196,9 +222,9 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->adapter = new PdoAdapter(
             $this->db, 
             $this->credentialStrategy, 
-            'users', 
-            'emailCanonical', 
-            'password'
+            $this->tableName, 
+            $this->identityColumn, 
+            $this->credentialColumn
         );
     }
 }

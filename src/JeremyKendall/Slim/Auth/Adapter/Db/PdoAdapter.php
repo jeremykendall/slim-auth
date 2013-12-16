@@ -98,7 +98,7 @@ class PdoAdapter extends AbstractAdapter
         }
 
         $passwordValid = $this->credentialStrategy
-            ->verifyPassword($this->getCredential(), $user['password']);
+            ->verifyPassword($this->getCredential(), $user[$this->getCredentialColumn()]);
 
         if ($passwordValid) {
             if ($this->getDispatcher()) {
@@ -107,7 +107,7 @@ class PdoAdapter extends AbstractAdapter
             }
 
             // Don't store password in identity
-            unset($user['password']);
+            unset($user[$this->getCredentialColumn()]);
 
             return new Result(Result::SUCCESS, $user, array());
         } else {

@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="tests/bootstrap.php" colors="true">
+<phpunit bootstrap="./bootstrap.php" colors="true">
 
     <testsuite name="all-tests">
-        <directory>tests/JeremyKendall/Slim/Auth/Tests</directory>
+        <directory>./Tests/</directory>
     </testsuite>
 
     <filter>
         <whitelist>
-            <directory suffix=".php">./src</directory>
+            <directory>./</directory>
+            <exclude>
+                <file>./bootstrap.php</file>
+                <directory>./build</directory>
+                <directory>./Tests</directory>
+                <directory>./vendor</directory>
+            </exclude>
         </whitelist>
     </filter>
 

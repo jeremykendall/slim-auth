@@ -33,10 +33,10 @@ class PhpCredentialStrategy implements CredentialStrategyInterface
     /**
      * Public constructor
      *
-     * @param int   $algo    The algorithm to use (Defined by PASSWORD_* constants)
+     * @param int   $algo    OPTIONAL The algorithm to use. Defaults to PASSWORD_DEFAULT
      * @param array $options OPTIONAL The options for the algorithm to use
      */
-    public function __construct($algo, array $options = array())
+    public function __construct($algo = PASSWORD_DEFAULT, array $options = array())
     {
         $this->algo = $algo;
         $this->options = $options;
@@ -69,5 +69,15 @@ class PhpCredentialStrategy implements CredentialStrategyInterface
     public function needsRehash($password)
     {
         return password_needs_rehash($password, $this->algo, $this->options);
+    }
+
+    /**
+     * Gets algorithm currently in use
+     *
+     * @return int Algorithm currently in use
+     */
+    public function getAlgo()
+    {
+        return $this->algo;
     }
 }

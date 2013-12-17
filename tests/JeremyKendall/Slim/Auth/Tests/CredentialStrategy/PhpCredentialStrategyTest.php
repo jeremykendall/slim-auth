@@ -18,7 +18,12 @@ class PhpCredentialStrategyTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->strategy = new PhpCredentialStrategy(PASSWORD_BCRYPT);
+        $this->strategy = new PhpCredentialStrategy();
+    }
+
+    public function testDefaultAlgo()
+    {
+        $this->assertEquals(PASSWORD_DEFAULT, $this->strategy->getAlgo());
     }
 
     public function testFunctionsExist()

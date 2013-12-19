@@ -9,26 +9,37 @@
             "role": "Developer"
         }
     ],
-    "keywords": ["auth", "authorization", "authentication", "slim", "slim framework", "zend", "zend framework", "zf2"],
+    "keywords": [
+        "auth",
+        "authorization",
+        "authentication",
+        "slim",
+        "slim framework",
+        "zend",
+        "zend framework",
+        "zf2"
+    ],
     "repositories": [
-    {
-        "type": "composer",
-        "url": "http://packages.zendframework.com/"
-    },
-    {
-        "type": "package",
-        "package": {
-            "name": "openwall/phpass",
-            "version": "0.3",
-            "dist": {
-                "url": "http://www.openwall.com/phpass/phpass-0.3.tar.gz",
-                "type": "tar"
-            },
-            "autoload": {
-                "classmap": ["PasswordHash.php"]
+        {
+            "type": "composer",
+            "url": "http://packages.zendframework.com/"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "openwall/phpass",
+                "version": "0.3",
+                "dist": {
+                    "url": "http://www.openwall.com/phpass/phpass-0.3.tar.gz",
+                    "type": "tar"
+                },
+                "autoload": {
+                    "classmap": [
+                        "PasswordHash.php"
+                    ]
+                }
             }
         }
-    }
     ],
     "require": {
         "php": ">=5.3.3",
@@ -45,8 +56,7 @@
         "zendframework/zend-db": "2.*"
     },
     "autoload": {
-        "psr-0": 
-        {
+        "psr-0": {
             "JeremyKendall\\Slim\\Auth\\": "src/"
         }
     },

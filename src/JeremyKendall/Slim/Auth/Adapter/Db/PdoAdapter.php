@@ -10,7 +10,8 @@
 
 namespace JeremyKendall\Slim\Auth\Adapter\Db;
 
-use JeremyKendall\Slim\Auth\CredentialStrategy\CredentialStrategyInterface as CredentialStrategy;
+use JeremyKendall\Slim\Auth\CredentialStrategy\CredentialStrategyInterface;
+use JeremyKendall\Slim\Auth\CredentialStrategy\PhpCredentialStrategy;
 use JeremyKendall\Slim\Auth\Event\PasswordValidatedEvent;
 use PDO;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -55,25 +56,25 @@ class PdoAdapter extends AbstractAdapter
     /**
      * Public constructor
      *
-     * @param PDO                $db
-     * @param CredentialStrategy $credentialStrategy
-     * @param string             $tableName
-     * @param string             $identityColumn
-     * @param string             $credentialColumn
+     * @param PDO                         $db
+     * @param string                      $tableName
+     * @param string                      $identityColumn
+     * @param string                      $credentialColumn
+     * @param CredentialStrategyInterface $credentialStrategy
      */
     public function __construct(
         PDO $db,
-        CredentialStrategy $credentialStrategy,
         $tableName,
         $identityColumn,
-        $credentialColumn
+        $credentialColumn,
+        CredentialStrategyInterface $credentialStrategy = null
     )
     {
         $this->db = $db;
-        $this->credentialStrategy = $credentialStrategy;
         $this->tableName = $tableName;
         $this->identityColumn = $identityColumn;
         $this->credentialColumn = $credentialColumn;
+        $this->credentialStrategy = $credentialStrategy;
     }
 
     /**
@@ -97,7 +98,7 @@ class PdoAdapter extends AbstractAdapter
             );
         }
 
-        $passwordValid = $this->credentialStrategy
+        $passwordValid = $this->getCredentialStrategy()
             ->verifyPassword($this->getCredential(), $user[$this->getCredentialColumn()]);
 
         if ($passwordValid) {
@@ -180,13 +181,17 @@ class PdoAdapter extends AbstractAdapter
     /**
      * Get credentialStrategy
      *
-     * @return CredentialStrategy credentialStrategy
+     * @return CredentialStrategyInterface credentialStrategy
      */
     public function getCredentialStrategy()
     {
+        if ($this->credentialStrategy === null) {
+            $this->credentialStrategy = new PhpCredentialStrategy();
+        }
+
         return $this->credentialStrategy;
     }
-    
+
     /**
      * Get dispatcher
      *
@@ -196,7 +201,7 @@ class PdoAdapter extends AbstractAdapter
     {
         return $this->dispatcher;
     }
-    
+
     /**
      * Set dispatcher
      *

@@ -162,6 +162,21 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('User not found.', $messages[0]);
     }
 
+    public function testDefaultAdapter()
+    {
+        $adapter = new PdoAdapter(
+            $this->db, 
+            $this->tableName, 
+            $this->identityColumn, 
+            $this->credentialColumn
+        );
+
+        $this->assertInstanceOf(
+            'JeremyKendall\Slim\Auth\CredentialStrategy\PhpCredentialStrategy', 
+            $adapter->getCredentialStrategy()
+        );
+    }
+
     private function setUpDb()
     {
         $dsn = 'sqlite::memory:';
@@ -221,10 +236,10 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 
         $this->adapter = new PdoAdapter(
             $this->db, 
-            $this->credentialStrategy, 
             $this->tableName, 
             $this->identityColumn, 
-            $this->credentialColumn
+            $this->credentialColumn,
+            $this->credentialStrategy
         );
     }
 }

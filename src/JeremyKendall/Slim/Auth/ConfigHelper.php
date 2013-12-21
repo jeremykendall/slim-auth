@@ -24,11 +24,6 @@ use Zend\Permissions\Acl\Acl;
 class ConfigHelper
 {
     /**
-     * @var CredentialStrategyInterface Credential strategy
-     */
-    private $credentialStrategy;
-
-    /**
      * @var Acl Access control list
      */
     private $acl;
@@ -89,26 +84,6 @@ class ConfigHelper
 
         // Add the custom middleware
         $this->app->add(new AuthorizationMiddleware($auth, $this->getAcl()));
-    }
-
-    /**
-     * Get credentialStrategy
-     *
-     * @return credentialStrategy
-     */
-    public function getCredentialStrategy()
-    {
-        return $this->credentialStrategy;
-    }
-
-    /**
-     * Set credentialStrategy
-     *
-     * @param $credentialStrategy the value to set
-     */
-    public function setCredentialStrategy($credentialStrategy)
-    {
-        $this->credentialStrategy = $credentialStrategy;
     }
 
     /**

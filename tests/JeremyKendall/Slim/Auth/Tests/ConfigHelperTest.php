@@ -53,17 +53,6 @@ class ConfigHelperTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testGetSetCredentialStrategy()
-    {
-        $this->assertNull($this->configHelper->getCredentialStrategy());
-        $phpass = $this->getMockBuilder('JeremyKendall\Slim\Auth\CredentialStrategy\PHPassCredentialStrategy')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->configHelper->setCredentialStrategy($phpass);
-
-        $this->assertSame($phpass, $this->configHelper->getCredentialStrategy());
-    }
-
     public function testGetSetStorage()
     {
         $this->assertNull($this->configHelper->getStorage());

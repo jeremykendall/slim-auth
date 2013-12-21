@@ -15,7 +15,6 @@ use JeremyKendall\Slim\Auth\Middleware\Authorization as AuthorizationMiddleware;
 use Slim\Slim;
 use Zend\Authentication\Adapter\AbstractAdapter;
 use Zend\Authentication\AuthenticationService;
-use Zend\Authentication\Storage\Session as SessionStorage;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Permissions\Acl\Acl;
 
@@ -101,10 +100,6 @@ class Bootstrap
      */
     public function getStorage()
     {
-        if ($this->storage === null) {
-            $this->storage = new SessionStorage();
-        }
-
         return $this->storage;
     }
 

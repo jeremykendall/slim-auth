@@ -46,17 +46,9 @@ class BootstrapTest extends \PHPUnit_Framework_TestCase
 
     public function testGetSetStorage()
     {
-        $this->assertInstanceOf(
-            'Zend\Authentication\Storage\Session', 
-            $this->bootstrap->getStorage()
-        );
+        $this->assertNull($this->bootstrap->getStorage());
 
         $this->bootstrap->bootstrap();
-
-        $this->assertInstanceOf(
-            'Zend\Authentication\Storage\Session', 
-            $this->app->auth->getStorage()
-        );
 
         $this->assertInstanceOf(
             'Zend\Authentication\Storage\Session', 
@@ -65,6 +57,7 @@ class BootstrapTest extends \PHPUnit_Framework_TestCase
 
         $this->bootstrap->setStorage($this->getMock('Zend\Authentication\Storage\Chain'));
         $this->bootstrap->bootstrap();
+
         $this->assertInstanceOf(
             'Zend\Authentication\Storage\Chain', 
             $this->app->auth->getStorage()

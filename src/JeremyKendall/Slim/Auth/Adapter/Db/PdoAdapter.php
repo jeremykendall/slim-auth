@@ -74,7 +74,7 @@ class PdoAdapter extends AbstractAdapter
         $this->credentialColumn = $credentialColumn;
 
         if (null === $credentialValidationCallback) {
-            $this->setCredentialValidationCallback(function($password, $hash) {
+            $this->setCredentialValidationCallback(function ($password, $hash) {
                 return password_verify($password, $hash);
             });
         } else {

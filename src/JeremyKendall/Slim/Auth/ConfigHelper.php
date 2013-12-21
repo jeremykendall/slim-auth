@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Slim Auth
+ *
+ * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
+ * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
+ * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
+ */
+
 namespace JeremyKendall\Slim\Auth;
 
 use JeremyKendall\Slim\Auth\Authenticator;
@@ -10,6 +18,9 @@ use Zend\Authentication\AuthenticationService;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Permissions\Acl\Acl;
 
+/**
+ * Convenience class to assist wiring up Slim Auth defaults
+ */
 class ConfigHelper
 {
     /**
@@ -18,12 +29,12 @@ class ConfigHelper
     private $credentialStrategy;
 
     /**
-     * @var Acl
+     * @var Acl Access control list
      */
     private $acl;
 
     /**
-     * @var AbstractAdapter
+     * @var AbstractAdapter Auth adapter
      */
     private $adapter;
 
@@ -33,15 +44,22 @@ class ConfigHelper
     private $storage;
 
     /**
-     * @var Slim
+     * @var Slim Instance of Slim
      */
     private $app;
 
     /**
-     * @var AuthenticationService
+     * @var AuthenticationService Auth service
      */
     private $auth;
 
+    /**
+     * Public constructor
+     *
+     * @param Slim            $app
+     * @param AbstractAdapter $adapter
+     * @param Acl             $acl
+     */
     public function __construct(Slim $app, AbstractAdapter $adapter, Acl $acl)
     {
         $this->app = $app;
@@ -49,6 +67,12 @@ class ConfigHelper
         $this->acl = $acl;
     }
 
+    /**
+     * Wires up Slim Auth defaults
+     *
+     * Creates the Zend AuthenticationService, adds the Authenticator to the Slim
+     * resource locator, and adds the AuthorizationMiddleware to the $app instance.
+     */
     public function create()
     {
         $this->auth = new AuthenticationService(

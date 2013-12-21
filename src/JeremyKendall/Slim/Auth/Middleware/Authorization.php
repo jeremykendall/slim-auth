@@ -15,12 +15,14 @@ use Zend\Authentication\AuthenticationService;
 use Zend\Permissions\Acl\Acl;
 
 /**
- * Authorization middleware
+ * Authorization middleware: Checks user's authorization to access the
+ * requested URI.
  *
- * Checks if user is authorized to access the requested URI.
+ * Will redirect a guest to name login route if they attempt to visit a
+ * secured URI.
  *
- * Will redirect a guest to name login route if they attempt to visit a secured URI.
- * Returns HTTP 403 if authenticated user visits a URI they are not authorized for.
+ * Returns HTTP 403 if authenticated user visits a URI they are not
+ * authorized for.
  */
 class Authorization extends \Slim\Middleware
 {

@@ -18,7 +18,11 @@ use JeremyKendall\Slim\Auth\AuthException;
 class HttpForbiddenException extends AuthException
 {
     /**
-     * {@inheritDoc}
+     * Public constructor
+     *
+     * @param string    $message  Exception message
+     * @param int       $code     Exception code
+     * @param Exception $previous Previous exception
      */
     public function __construct(
         $message = 'You are not authorized to access this resource',

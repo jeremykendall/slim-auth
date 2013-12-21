@@ -15,19 +15,9 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
     private $db;
 
     /**
-     * @var CredentialStrategyInterface
-     */
-    private $credentialStrategy;
-
-    /**
      * @var PdoAdapter
      */
     private $adapter;
-
-    /**
-     * @var array User data
-     */
-    private $user;
 
     /**
      * @var EventDispatcher
@@ -35,32 +25,20 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
     private $dispatcher;
 
     /**
-     * @var string identity/credential table name
+     * @var array User data
      */
-    private $tableName;
-
-    /**
-     * @var string credential column
-     */
-    private $credentialColumn;
-
-    /**
-     * @var string identity column
-     */
-    private $identityColumn;
+    private $identity;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->tableName = 'user_table';
-        $this->credentialColumn = 'user_password';
-        $this->identityColumn = 'user_unique_email';
 
-        $this->user = array(
-            $this->identityColumn => 'arthur.dent@example.com',
+        $this->identity = array(
+            'email_address' => 'arthur.dent@example.com',
             'role' => 'hapless protagonist',
-            $this->credentialColumn => 'passwordHash',
+            'hashed_password' => '00101010',
         );
+
         $this->setUpDb();
         $this->setUpAdapter();
     }
@@ -68,74 +46,54 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
     protected function tearDown()
     {
         parent::tearDown();
+        $this->db = null;
     }
 
-    public function testConstructorSetsDbAndFields()
+    public function testAuthenticationSuccessWithoutDispatcher()
     {
-        $this->assertSame($this->db, $this->adapter->getDb());
-        $this->assertSame($this->credentialStrategy, $this->adapter->getCredentialStrategy());
-        $this->assertEquals($this->tableName, $this->adapter->getTableName());
-        $this->assertEquals($this->identityColumn, $this->adapter->getIdentityColumn());
-        $this->assertEquals($this->credentialColumn, $this->adapter->getCredentialColumn());
+        $this->dispatcher->expects($this->never())
+            ->method('dispatch');
+
+        $this->adapter->setIdentity($this->identity['email_address']);
+        $this->adapter->setCredential($this->identity['hashed_password']);
+
+        $result = $this->adapter->authenticate();
+        $this->assertTrue($result->isValid());
+
+        $this->identity['id'] = '1';
+        // Password must not be stored in identity
+        unset($this->identity['hashed_password']);
+        $this->assertEquals($this->identity, $result->getIdentity());
     }
 
     public function testAuthenticationSuccessWithDispatcher()
     {
         $this->adapter->setDispatcher($this->dispatcher);
-        $this->user['id'] = '1';
 
-        $this->credentialStrategy->expects($this->once())
-            ->method('verifyPassword')
-            ->with('00101010', 'passwordHash')
-            ->will($this->returnValue(true));
+        $this->identity['id'] = '1';
 
         $this->dispatcher->expects($this->once())
             ->method('dispatch')
-            ->with('user.password_validated', new PasswordValidatedEvent($this->user, $this->db))
+            ->with(
+                'user.password_validated', 
+                new PasswordValidatedEvent($this->identity, $this->db)
+            )
             ->will($this->returnValue(true));
 
-        $this->adapter->setIdentity('arthur.dent@example.com');
-        $this->adapter->setCredential('00101010');
+        $this->adapter->setIdentity($this->identity['email_address']);
+        $this->adapter->setCredential($this->identity['hashed_password']);
 
         $result = $this->adapter->authenticate();
-
-        unset($this->user[$this->credentialColumn]);
-
         $this->assertTrue($result->isValid());
-        $this->assertEquals($this->user, $result->getIdentity());
-    }
 
-    public function testAuthenticationSuccessWithoutDispatcher()
-    {
-        $this->user['id'] = '1';
-
-        $this->credentialStrategy->expects($this->once())
-            ->method('verifyPassword')
-            ->with('00101010', 'passwordHash')
-            ->will($this->returnValue(true));
-
-        $this->dispatcher->expects($this->never())
-            ->method('dispatch');
-
-        $this->adapter->setIdentity('arthur.dent@example.com');
-        $this->adapter->setCredential('00101010');
-
-        $result = $this->adapter->authenticate();
-
-        unset($this->user[$this->credentialColumn]);
-
-        $this->assertTrue($result->isValid());
-        $this->assertEquals($this->user, $result->getIdentity());
+        // Password must not be stored in identity
+        unset($this->identity['hashed_password']);
+        $this->assertEquals($this->identity, $result->getIdentity());
     }
 
     public function testAuthenticationFailsBadPassword()
     {
-        $this->credentialStrategy->expects($this->once())
-            ->method('verifyPassword')
-            ->with('bad password', 'passwordHash')
-            ->will($this->returnValue(false));
-
-        $this->adapter->setIdentity('arthur.dent@example.com');
+        $this->adapter->setIdentity($this->identity['email_address']);
         $this->adapter->setCredential('bad password');
 
         $result = $this->adapter->authenticate();
@@ -148,9 +106,6 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testAuthenticationFailsUserNotFound()
     {
-        $this->credentialStrategy->expects($this->never())
-            ->method('verifyPassword');
-
         $this->adapter->setIdentity('zaphod.beeblebrox@example.com');
         $this->adapter->setCredential('dumb password');
 
@@ -162,19 +117,35 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('User not found.', $messages[0]);
     }
 
-    public function testDefaultAdapter()
+    public function testDefaultValidationCallback()
     {
+        $hash = password_hash($this->identity['hashed_password'], PASSWORD_DEFAULT);
+        $update = 'UPDATE application_users SET hashed_password = :pass WHERE id = 1';
+        $stmt = $this->db->prepare($update);
+        $stmt->execute(array(':pass' => $hash));
+
         $adapter = new PdoAdapter(
             $this->db, 
-            $this->tableName, 
-            $this->identityColumn, 
-            $this->credentialColumn
+            $tableName = 'application_users',
+            $identityColumn = 'email_address',
+            $credentialColumn = 'hashed_password'
         );
 
-        $this->assertInstanceOf(
-            'JeremyKendall\Slim\Auth\CredentialStrategy\PhpCredentialStrategy', 
-            $adapter->getCredentialStrategy()
-        );
+        $adapter->setIdentity($this->identity['email_address']);
+        $adapter->setCredential($this->identity['hashed_password']);
+
+        $result = $adapter->authenticate();
+        $this->assertTrue($result->isValid());
+
+        $adapter->setCredential('bad pass');
+        $result = $adapter->authenticate();
+        $this->assertFalse($result->isValid());
+    }
+
+    public function testSetCallbackNotCallableThrowsException()
+    {
+        $this->setExpectedException('InvalidArgumentException', 'Invalid callback provided');
+        $this->adapter->setCredentialValidationCallback('not_callable');
     }
 
     private function setUpDb()
@@ -191,32 +162,22 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
             die(sprintf('DB connection error: %s', $e->getMessage()));
         }
 
-        $create = 'CREATE TABLE IF NOT EXISTS [%s] ( '
+        $create = 'CREATE TABLE IF NOT EXISTS [application_users] ( '
             . '[id] INTEGER  NOT NULL PRIMARY KEY, '
-            . '[%s] VARCHAR(50) NOT NULL, '
+            . '[email_address] VARCHAR(50) NOT NULL, '
             . '[role] VARCHAR(50) NOT NULL, '
-            . '[%s] VARCHAR(255) NULL)';
-        $create = sprintf($create, $this->tableName, $this->identityColumn, $this->credentialColumn);
+            . '[hashed_password] VARCHAR(255) NULL)';
 
-        $delete = sprintf('DELETE FROM %s', $this->tableName);
+        $delete = 'DELETE FROM application_users';
 
-        $insert = 'INSERT INTO %s (%s, role, %s) '
-            . 'VALUES (:%s, :role, :%s)';
-        $insert = sprintf(
-            $insert,
-            $this->tableName,
-            $this->identityColumn,
-            $this->credentialColumn,
-            $this->identityColumn,
-            $this->credentialColumn
-        );
+        $insert = 'INSERT INTO application_users (email_address, role, hashed_password) '
+            . 'VALUES (:email_address, :role, :hashed_password)';
 
         try {
             $this->db->exec($create);
             $this->db->exec($delete);
-            //$this->db->exec($insert);
             $insert = $this->db->prepare($insert);
-            $insert->execute($this->user);
+            $insert->execute($this->identity);
         } catch (PDOException $e) {
             die(sprintf('DB setup error: %s', $e->getMessage()));
         }
@@ -224,22 +185,22 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 
     private function setUpAdapter()
     {
-        $interface = 'JeremyKendall\Slim\Auth\CredentialStrategy\CredentialStrategyInterface';
+        $this->dispatcher = $this->getMockBuilder(
+            'Symfony\Component\EventDispatcher\EventDispatcher'
+        )
+        ->disableOriginalConstructor()
+        ->getMock();
 
-        $this->credentialStrategy = $this->getMockBuilder($interface)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->dispatcher = $this->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcher')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->credentialCallback = function ($a, $b) {
+            return $a === $b;
+        };
 
         $this->adapter = new PdoAdapter(
             $this->db, 
-            $this->tableName, 
-            $this->identityColumn, 
-            $this->credentialColumn,
-            $this->credentialStrategy
+            $tableName = 'application_users',
+            $identityColumn = 'email_address',
+            $credentialColumn = 'hashed_password',
+            $this->credentialCallback
         );
     }
 }

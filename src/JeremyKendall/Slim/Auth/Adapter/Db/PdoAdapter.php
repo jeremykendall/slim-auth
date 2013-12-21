@@ -10,8 +10,6 @@
 
 namespace JeremyKendall\Slim\Auth\Adapter\Db;
 
-use JeremyKendall\Slim\Auth\CredentialStrategy\CredentialStrategyInterface;
-use JeremyKendall\Slim\Auth\CredentialStrategy\PhpCredentialStrategy;
 use JeremyKendall\Slim\Auth\Event\PasswordValidatedEvent;
 use PDO;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -27,11 +25,6 @@ class PdoAdapter extends AbstractAdapter
      * @var PDO DB connection
      */
     private $db;
-
-    /**
-     * @var CredentialStrategy Strategy for handling credential treatment
-     */
-    private $credentialStrategy;
 
     /**
      * @var EventDispatcher Symfony event dispatcher
@@ -54,27 +47,39 @@ class PdoAdapter extends AbstractAdapter
     private $credentialColumn;
 
     /**
+     * @var callable Handles credential validation
+     */
+    protected $credentialValidationCallback;
+
+    /**
      * Public constructor
      *
-     * @param PDO                         $db
-     * @param string                      $tableName
-     * @param string                      $identityColumn
-     * @param string                      $credentialColumn
-     * @param CredentialStrategyInterface $credentialStrategy
+     * @param PDO      $db
+     * @param string   $tableName
+     * @param string   $identityColumn
+     * @param string   $credentialColumn
+     * @param callable $credentialValidationCallback Optional credential handling
      */
     public function __construct(
         PDO $db,
         $tableName,
         $identityColumn,
         $credentialColumn,
-        CredentialStrategyInterface $credentialStrategy = null
+        $credentialValidationCallback = null
     )
     {
         $this->db = $db;
         $this->tableName = $tableName;
         $this->identityColumn = $identityColumn;
         $this->credentialColumn = $credentialColumn;
-        $this->credentialStrategy = $credentialStrategy;
+
+        if (null === $credentialValidationCallback) {
+            $this->setCredentialValidationCallback(function($password, $hash) {
+                return password_verify($password, $hash);
+            });
+        } else {
+            $this->setCredentialValidationCallback($credentialValidationCallback);
+        }
     }
 
     /**
@@ -98,8 +103,10 @@ class PdoAdapter extends AbstractAdapter
             );
         }
 
-        $passwordValid = $this->getCredentialStrategy()
-            ->verifyPassword($this->getCredential(), $user[$this->getCredentialColumn()]);
+        $passwordValid = call_user_func(
+            $this->credentialValidationCallback,
+            $this->credential, $user[$this->credentialColumn]
+        );
 
         if ($passwordValid) {
             if ($this->getDispatcher()) {
@@ -139,16 +146,6 @@ class PdoAdapter extends AbstractAdapter
     }
 
     /**
-     * Get db
-     *
-     * @return PDO Database connection
-     */
-    public function getDb()
-    {
-        return $this->db;
-    }
-
-    /**
      * Get tableName
      *
      * @return string tableName
@@ -179,17 +176,18 @@ class PdoAdapter extends AbstractAdapter
     }
 
     /**
-     * Get credentialStrategy
+     * Sets callback used for credential validation
      *
-     * @return CredentialStrategyInterface credentialStrategy
+     * @param  callable                  $validationCallback
+     * @throws \InvalidArgumentException
      */
-    public function getCredentialStrategy()
+    public function setCredentialValidationCallback($validationCallback)
     {
-        if ($this->credentialStrategy === null) {
-            $this->credentialStrategy = new PhpCredentialStrategy();
+        if (!is_callable($validationCallback)) {
+            throw new \InvalidArgumentException('Invalid callback provided');
         }
 
-        return $this->credentialStrategy;
+        $this->credentialValidationCallback = $validationCallback;
     }
 
     /**

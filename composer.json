@@ -19,41 +19,27 @@
         "zend framework",
         "zf2"
     ],
+    "bin": [
+        "bin/version-check"
+    ],
     "repositories": [
         {
             "type": "composer",
             "url": "http://packages.zendframework.com/"
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "openwall/phpass",
-                "version": "0.3",
-                "dist": {
-                    "url": "http://www.openwall.com/phpass/phpass-0.3.tar.gz",
-                    "type": "tar"
-                },
-                "autoload": {
-                    "classmap": [
-                        "PasswordHash.php"
-                    ]
-                }
-            }
         }
     ],
     "require": {
         "php": ">=5.3.3",
         "ircmaxell/password-compat": "1.*",
+        "symfony/event-dispatcher": "2.3.*",
+        "wp-cli/php-cli-tools": "v0.9.4",
         "zendframework/zend-authentication": "2.*",
         "zendframework/zend-permissions-acl": "2.*",
         "zendframework/zend-session": "2.*"
     },
     "require-dev": {
-        "openwall/phpass": "0.3",
         "phpunit/phpunit": "3.*",
-        "slim/slim": "~2.4",
-        "symfony/event-dispatcher": "2.3.*",
-        "zendframework/zend-db": "2.*"
+        "slim/slim": "2.*"
     },
     "autoload": {
         "psr-0": {
@@ -61,8 +47,6 @@
         }
     },
     "suggest": {
-        "Openwall PHPass": "For the PHPassCredentialStrategy. Review the jeremykendall/slim-auth composer.json for how to install via Composer.",
-        "symfony/event-dispatcher": "To use in the PdoAdapter",
         "zendframework/zend-db": "For the Zend\\Authentication\\Adapter\\DbTable adapters."
     }
 }

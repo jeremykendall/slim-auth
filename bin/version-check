@@ -15,7 +15,7 @@ if (is_dir($vendor = __DIR__.'/../vendor')) {
 
 // Taken from https://github.com/ircmaxell/password_compat/blob/master/version-test.php
 
-$hash = '$2y$04$usesomesillystringfore7hnbRJHxXLeakoG8K30oukPsA.ztMG';
+$hash = '$2y$04$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG';
 $test = crypt("password", $hash);
 $pass = $test == $hash;
 

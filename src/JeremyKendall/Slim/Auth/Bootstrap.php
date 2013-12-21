@@ -66,11 +66,11 @@ class Bootstrap
      */
     public function bootstrap()
     {
-        $this->app->auth = function () {
-            return new AuthenticationService(
-                $this->getStorage(),
-                $this->getAdapter()
-            );
+        $storage = $this->getStorage();
+        $adapter = $this->getAdapter();
+
+        $this->app->auth = function () use ($storage, $adapter) {
+            return new AuthenticationService($storage, $adapter);
         };
 
         $app = $this->app;

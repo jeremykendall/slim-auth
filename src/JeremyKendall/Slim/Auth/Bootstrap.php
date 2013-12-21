@@ -15,13 +15,14 @@ use JeremyKendall\Slim\Auth\Middleware\Authorization as AuthorizationMiddleware;
 use Slim\Slim;
 use Zend\Authentication\Adapter\AbstractAdapter;
 use Zend\Authentication\AuthenticationService;
+use Zend\Authentication\Storage\Session as SessionStorage;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Permissions\Acl\Acl;
 
 /**
  * Convenience class to assist wiring up Slim Auth defaults
  */
-class ConfigHelper
+class Bootstrap
 {
     /**
      * @var Acl Access control list
@@ -44,11 +45,6 @@ class ConfigHelper
     private $app;
 
     /**
-     * @var AuthenticationService Auth service
-     */
-    private $auth;
-
-    /**
      * Public constructor
      *
      * @param Slim            $app
@@ -65,25 +61,27 @@ class ConfigHelper
     /**
      * Wires up Slim Auth defaults
      *
-     * Creates the Zend AuthenticationService, adds the Authenticator to the Slim
-     * resource locator, and adds the AuthorizationMiddleware to the $app instance.
+     * Creates the Zend AuthenticationService, adds the AuthenticationService
+     * and the Authenticator to the Slim resource locator, and adds the
+     * AuthorizationMiddleware to the $app instance.
      */
-    public function create()
+    public function bootstrap()
     {
-        $this->auth = new AuthenticationService(
-            $this->getStorage(),
-            $this->getAdapter()
-        );
+        $this->app->auth = function () {
+            return new AuthenticationService(
+                $this->getStorage(),
+                $this->getAdapter()
+            );
+        };
 
-        $auth = $this->auth;
+        $app = $this->app;
 
-        // Add the authenticator to the built-in resource locator
-        $this->app->authenticator = function () use ($auth) {
-            return new Authenticator($auth);
+        $this->app->authenticator = function () use ($app) {
+            return new Authenticator($app->auth);
         };
 
         // Add the custom middleware
-        $this->app->add(new AuthorizationMiddleware($auth, $this->getAcl()));
+        $this->app->add(new AuthorizationMiddleware($this->app->auth, $this->getAcl()));
     }
 
     /**
@@ -97,22 +95,16 @@ class ConfigHelper
     }
 
     /**
-     * Get adapter
+     * Gets storage
      *
-     * @return AbstractAdapter adapter
-     */
-    public function getAdapter()
-    {
-        return $this->adapter;
-    }
-
-    /**
-     * Get storage
-     *
-     * @return StorageInterface storage
+     * @return StorageInterface AuthenticationService storage
      */
     public function getStorage()
     {
+        if ($this->storage === null) {
+            $this->storage = new SessionStorage();
+        }
+
         return $this->storage;
     }
 
@@ -127,22 +119,12 @@ class ConfigHelper
     }
 
     /**
-     * Get app
+     * Gets auth adapter adapter
      *
-     * @return Slim Instance of Slim
+     * @return AbstractAdapter Auth adapter
      */
-    public function getApp()
+    public function getAdapter()
     {
-        return $this->app;
-    }
-
-    /**
-     * Get auth
-     *
-     * @return AuthenticationSerivce auth
-     */
-    public function getAuth()
-    {
-        return $this->auth;
+        return $this->adapter;
     }
 }

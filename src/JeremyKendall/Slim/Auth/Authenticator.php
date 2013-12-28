@@ -48,4 +48,14 @@ class Authenticator
 
         return $this->auth->authenticate();
     }
+
+    /**
+     * Clears the identity from persistent storage
+     *
+     * @return void
+     */
+    public function logout()
+    {
+        $this->auth->clearIdentity();
+    }
 }

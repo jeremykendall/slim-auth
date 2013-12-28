@@ -78,6 +78,14 @@ class AuthenticatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($result->isValid());
     }
 
+    public function testLogout()
+    {
+        $this->auth->expects($this->once())
+            ->method('clearIdentity');
+
+        $this->authenticator->logout();
+    }
+
     private function getFailureResult()
     {
         return new Result(Result::FAILURE, array(), array('FAILZORS'));

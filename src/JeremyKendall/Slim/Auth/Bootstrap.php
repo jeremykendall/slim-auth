@@ -44,6 +44,11 @@ class Bootstrap
     private $app;
 
     /**
+     * @var AuthorizationMiddleware Authorization middleware
+     */
+    private $authMiddleware;
+
+    /**
      * Public constructor
      *
      * @param Slim            $app
@@ -80,7 +85,7 @@ class Bootstrap
         };
 
         // Add the custom middleware
-        $this->app->add(new AuthorizationMiddleware($this->app->auth, $this->getAcl()));
+        $this->app->add($this->getAuthMiddleware());
     }
 
     /**
@@ -121,5 +126,32 @@ class Bootstrap
     public function getAdapter()
     {
         return $this->adapter;
+    }
+
+    /**
+     * Get authMiddleware
+     *
+     * @return AuthorizationMiddleware Authorization middleware
+     */
+    public function getAuthMiddleware()
+    {
+        if ($this->authMiddleware === null) {
+            $this->authMiddleware = new AuthorizationMiddleware(
+                $this->app->auth,
+                $this->getAcl()
+            );
+        }
+
+        return $this->authMiddleware;
+    }
+
+    /**
+     * Set authMiddleware
+     *
+     * @param $authMiddleware Authorization middleware
+     */
+    public function setAuthMiddleware(AuthorizationMiddleware $authMiddleware)
+    {
+        $this->authMiddleware = $authMiddleware;
     }
 }

@@ -10,11 +10,10 @@
 
 namespace JeremyKendall\Slim\Auth\Adapter\Db;
 
-use JeremyKendall\Slim\Auth\Event\PasswordValidatedEvent;
+use JeremyKendall\Password\PasswordValidatorInterface;
 use PDO;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Zend\Authentication\Adapter\AbstractAdapter;
-use Zend\Authentication\Result;
+use Zend\Authentication\Result as AuthenticationResult;
 
 /**
  * Authentication adapter
@@ -25,11 +24,6 @@ class PdoAdapter extends AbstractAdapter
      * @var PDO DB connection
      */
     private $db;
-
-    /**
-     * @var EventDispatcher Symfony event dispatcher
-     */
-    private $dispatcher;
 
     /**
      * @var string the table name to check
@@ -47,80 +41,63 @@ class PdoAdapter extends AbstractAdapter
     private $credentialColumn;
 
     /**
-     * @var callable Handles credential validation
+     * @var PasswordValidatorInterface Handles password validation
      */
-    protected $credentialValidationCallback;
+    protected $passwordValidator;
 
     /**
      * Public constructor
      *
-     * @param PDO      $db
-     * @param string   $tableName
-     * @param string   $identityColumn
-     * @param string   $credentialColumn
-     * @param callable $credentialValidationCallback Optional credential handling
+     * @param PDO                        $db
+     * @param string                     $tableName
+     * @param string                     $identityColumn
+     * @param string                     $credentialColumn
+     * @param PasswordValidatorInterface $passwordValidator Password validator
      */
     public function __construct(
         PDO $db,
         $tableName,
         $identityColumn,
         $credentialColumn,
-        $credentialValidationCallback = null
+        $passwordValidator
     )
     {
         $this->db = $db;
         $this->tableName = $tableName;
         $this->identityColumn = $identityColumn;
         $this->credentialColumn = $credentialColumn;
-
-        if (null === $credentialValidationCallback) {
-            $this->setCredentialValidationCallback(function ($password, $hash) {
-                return password_verify($password, $hash);
-            });
-        } else {
-            $this->setCredentialValidationCallback($credentialValidationCallback);
-        }
+        $this->passwordValidator = $passwordValidator;
     }
 
     /**
      * Performs authentication
      *
-     * Includes a Symfony EventDispatcher Event, 'user.password_validated',
-     * intended to be used for password rehashing, if it's needed.
-     * @see http://symfony.com/doc/current/components/event_dispatcher/introduction.html
-     *
-     * @return Result Authentication result
+     * @return AuthenticationResult Authentication result
      */
     public function authenticate()
     {
         $user = $this->findUser();
 
         if ($user === false) {
-            return new Result(
-                Result::FAILURE_IDENTITY_NOT_FOUND,
+            return new AuthenticationResult(
+                AuthenticationResult::FAILURE_IDENTITY_NOT_FOUND,
                 array(),
                 array('User not found.')
             );
         }
 
-        $passwordValid = call_user_func(
-            $this->credentialValidationCallback,
-            $this->credential, $user[$this->credentialColumn]
+        $validationResult = $this->passwordValidator->isValid(
+            $this->credential, $user[$this->credentialColumn], $user['id']
         );
 
-        if ($passwordValid) {
-            if ($this->getDispatcher()) {
-                $event = new PasswordValidatedEvent($user, $this->db);
-                $this->dispatcher->dispatch('user.password_validated', $event);
-            }
-
+        if ($validationResult->isValid()) {
             // Don't store password in identity
             unset($user[$this->getCredentialColumn()]);
 
-            return new Result(Result::SUCCESS, $user, array());
+            return new AuthenticationResult(AuthenticationResult::SUCCESS, $user, array());
         } else {
-            return new Result(
-                Result::FAILURE_CREDENTIAL_INVALID,
+            return new AuthenticationResult(
+                AuthenticationResult::FAILURE_CREDENTIAL_INVALID,
                 array(),
                 array('Invalid username or password provided')
             );
@@ -173,40 +150,5 @@ class PdoAdapter extends AbstractAdapter
     public function getCredentialColumn()
     {
         return $this->credentialColumn;
-    }
-
-    /**
-     * Sets callback used for credential validation
-     *
-     * @param  callable                  $validationCallback
-     * @throws \InvalidArgumentException
-     */
-    public function setCredentialValidationCallback($validationCallback)
-    {
-        if (!is_callable($validationCallback)) {
-            throw new \InvalidArgumentException('Invalid callback provided');
-        }
-
-        $this->credentialValidationCallback = $validationCallback;
-    }
-
-    /**
-     * Get dispatcher
-     *
-     * @return EventDispatcher dispatcher
-     */
-    public function getDispatcher()
-    {
-        return $this->dispatcher;
-    }
-
-    /**
-     * Set dispatcher
-     *
-     * @param EventDispatcher $dispatcher the value to set
-     */
-    public function setDispatcher(EventDispatcher $dispatcher)
-    {
-        $this->dispatcher = $dispatcher;
     }
 }

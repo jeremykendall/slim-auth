@@ -2,8 +2,9 @@
 
 namespace JeremyKendall\Slim\Auth\Tests\Adapter\Db;
 
+use JeremyKendall\Password\PasswordValidatorInterface;
+use JeremyKendall\Password\Result as ValidationResult;
 use JeremyKendall\Slim\Auth\Adapter\Db\PdoAdapter;
-use JeremyKendall\Slim\Auth\Event\PasswordValidatedEvent;
 use PDO;
 use Zend\Authentication\Result;
 
@@ -20,23 +21,31 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
     private $adapter;
 
     /**
-     * @var EventDispatcher
-     */
-    private $dispatcher;
-
-    /**
      * @var array User data
      */
     private $identity;
+
+    /**
+     * @var string User plain text password
+     */
+    private $plainTextPassword;
+
+    /**
+     * @var PasswordValidatorInterface
+     */
+    protected $passwordValidator;
 
     protected function setUp()
     {
         parent::setUp();
 
+        $this->plainTextPassword = '00101010';
+
         $this->identity = array(
+            'id' => 1,
             'email_address' => 'arthur.dent@example.com',
             'role' => 'hapless protagonist',
-            'hashed_password' => '00101010',
+            'hashed_password' => password_hash('00101010', PASSWORD_DEFAULT),
         );
 
         $this->setUpDb();
@@ -49,39 +58,19 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->db = null;
     }
 
-    public function testAuthenticationSuccessWithoutDispatcher()
+    public function testAuthenticationSuccess()
     {
-        $this->dispatcher->expects($this->never())
-            ->method('dispatch');
-
-        $this->adapter->setIdentity($this->identity['email_address']);
-        $this->adapter->setCredential($this->identity['hashed_password']);
-
-        $result = $this->adapter->authenticate();
-        $this->assertTrue($result->isValid());
-
-        $this->identity['id'] = '1';
-        // Password must not be stored in identity
-        unset($this->identity['hashed_password']);
-        $this->assertEquals($this->identity, $result->getIdentity());
-    }
-
-    public function testAuthenticationSuccessWithDispatcher()
-    {
-        $this->adapter->setDispatcher($this->dispatcher);
-
-        $this->identity['id'] = '1';
-
-        $this->dispatcher->expects($this->once())
-            ->method('dispatch')
+        $this->passwordValidator->expects($this->once())
+            ->method('isValid')
             ->with(
-                'user.password_validated', 
-                new PasswordValidatedEvent($this->identity, $this->db)
+                $this->plainTextPassword, 
+                $this->identity['hashed_password'], 
+                $this->identity['id']
             )
-            ->will($this->returnValue(true));
+            ->will($this->returnValue(new ValidationResult(ValidationResult::SUCCESS)));
 
         $this->adapter->setIdentity($this->identity['email_address']);
-        $this->adapter->setCredential($this->identity['hashed_password']);
+        $this->adapter->setCredential($this->plainTextPassword);
 
         $result = $this->adapter->authenticate();
         $this->assertTrue($result->isValid());
@@ -95,6 +84,17 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $this->adapter->setIdentity($this->identity['email_address']);
         $this->adapter->setCredential('bad password');
+
+        $this->passwordValidator->expects($this->once())
+            ->method('isValid')
+            ->with(
+                'bad password',
+                $this->identity['hashed_password'], 
+                $this->identity['id']
+            )
+            ->will($this->returnValue(
+                new ValidationResult(ValidationResult::FAILURE_PASSWORD_INVALID)
+            ));
 
         $result = $this->adapter->authenticate();
         $messages = $result->getMessages();
@@ -115,37 +115,6 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($result->isValid());
         $this->assertEquals(Result::FAILURE_IDENTITY_NOT_FOUND, $result->getCode());
         $this->assertEquals('User not found.', $messages[0]);
-    }
-
-    public function testDefaultValidationCallback()
-    {
-        $hash = password_hash($this->identity['hashed_password'], PASSWORD_DEFAULT);
-        $update = 'UPDATE application_users SET hashed_password = :pass WHERE id = 1';
-        $stmt = $this->db->prepare($update);
-        $stmt->execute(array(':pass' => $hash));
-
-        $adapter = new PdoAdapter(
-            $this->db, 
-            $tableName = 'application_users',
-            $identityColumn = 'email_address',
-            $credentialColumn = 'hashed_password'
-        );
-
-        $adapter->setIdentity($this->identity['email_address']);
-        $adapter->setCredential($this->identity['hashed_password']);
-
-        $result = $adapter->authenticate();
-        $this->assertTrue($result->isValid());
-
-        $adapter->setCredential('bad pass');
-        $result = $adapter->authenticate();
-        $this->assertFalse($result->isValid());
-    }
-
-    public function testSetCallbackNotCallableThrowsException()
-    {
-        $this->setExpectedException('InvalidArgumentException', 'Invalid callback provided');
-        $this->adapter->setCredentialValidationCallback('not_callable');
     }
 
     private function setUpDb()
@@ -170,8 +139,8 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 
         $delete = 'DELETE FROM application_users';
 
-        $insert = 'INSERT INTO application_users (email_address, role, hashed_password) '
-            . 'VALUES (:email_address, :role, :hashed_password)';
+        $insert = 'INSERT INTO application_users (id, email_address, role, hashed_password) '
+            . 'VALUES (:id, :email_address, :role, :hashed_password)';
 
         try {
             $this->db->exec($create);
@@ -185,22 +154,15 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 
     private function setUpAdapter()
     {
-        $this->dispatcher = $this->getMockBuilder(
-            'Symfony\Component\EventDispatcher\EventDispatcher'
-        )
-        ->disableOriginalConstructor()
-        ->getMock();
-
-        $this->credentialCallback = function ($a, $b) {
-            return $a === $b;
-        };
+        $this->passwordValidator = 
+            $this->getMock('JeremyKendall\Password\PasswordValidatorInterface');
 
         $this->adapter = new PdoAdapter(
             $this->db, 
             $tableName = 'application_users',
             $identityColumn = 'email_address',
             $credentialColumn = 'hashed_password',
-            $this->credentialCallback
+            $this->passwordValidator
         );
     }
 }

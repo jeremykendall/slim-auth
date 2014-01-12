@@ -35,7 +35,6 @@
     ],
     "require": {
         "php": ">=5.3.3",
-        "ircmaxell/password-compat": "1.*",
         "jeremykendall/password-validator": "dev-develop",
         "wp-cli/php-cli-tools": "v0.9.4",
         "zendframework/zend-authentication": "2.*",

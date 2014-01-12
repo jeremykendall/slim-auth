@@ -1,6 +1,11 @@
 {
     "name": "jeremykendall/slim-auth",
     "description": "Authorization and authentication for the Slim Framework using ZF2 Authentication and Acl components",
+    "homepage": "https://github.com/jeremykendall/slim-auth",
+    "support": {
+        "issues": "https://github.com/jeremykendall/slim-auth/issues",
+        "source": "https://github.com/jeremykendall/slim-auth"
+    },
     "license": "MIT",
     "authors": [
         {
@@ -31,13 +36,14 @@
     "require": {
         "php": ">=5.3.3",
         "ircmaxell/password-compat": "1.*",
-        "symfony/event-dispatcher": "2.3.*",
+        "jeremykendall/password-validator": "dev-develop",
         "wp-cli/php-cli-tools": "v0.9.4",
         "zendframework/zend-authentication": "2.*",
         "zendframework/zend-permissions-acl": "2.*",
         "zendframework/zend-session": "2.*"
     },
     "require-dev": {
+        "league/phpunit-coverage-listener": "~1.1",
         "phpunit/phpunit": "3.*",
         "slim/slim": "2.*"
     },

@@ -10,6 +10,8 @@
 
 namespace JeremyKendall\Slim\Auth;
 
+use JeremyKendall\Password\PasswordValidator;
+use JeremyKendall\Password\PasswordValidatorInterface;
 use JeremyKendall\Slim\Auth\Authenticator;
 use JeremyKendall\Slim\Auth\Middleware\Authorization as AuthorizationMiddleware;
 use Slim\Slim;
@@ -47,6 +49,11 @@ class Bootstrap
      * @var AuthorizationMiddleware Authorization middleware
      */
     private $authMiddleware;
+
+    /**
+     * @var PasswordValidatorInterface
+     */
+    private $passwordValidator;
 
     /**
      * Public constructor
@@ -153,5 +160,29 @@ class Bootstrap
     public function setAuthMiddleware(AuthorizationMiddleware $authMiddleware)
     {
         $this->authMiddleware = $authMiddleware;
+    }
+
+    /**
+     * Get passwordValidator
+     *
+     * @return PasswordValidatorInterface passwordValidator
+     */
+    public function getPasswordValidator()
+    {
+        if ($this->passwordValidator === null) {
+            $this->passwordValidator = new PasswordValidator();
+        }
+
+        return $this->passwordValidator;
+    }
+
+    /**
+     * Set passwordValidator
+     *
+     * @param PasswordValidatorInterface $passwordValidator
+     */
+    public function setPasswordValidator(PasswordValidatorInterface $passwordValidator)
+    {
+        $this->passwordValidator = $passwordValidator;
     }
 }

@@ -80,23 +80,6 @@ class BootstrapTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testGetSetPasswordValidator()
-    {
-        $defaultValidator = $this->bootstrap->getPasswordValidator();
-        // Default validator
-        $this->assertInstanceOf(
-            'JeremyKendall\Password\PasswordValidatorInterface', 
-            $defaultValidator
-        );
-
-        $validator = 
-            $this->getMock('JeremyKendall\Password\PasswordValidatorInterface');
-
-        $this->bootstrap->setPasswordValidator($validator);
-        $this->assertSame($validator, $this->bootstrap->getPasswordValidator());
-        $this->assertNotSame($defaultValidator, $this->bootstrap->getPasswordValidator());
-    }
-
     private function getBootstrap(StorageInterface $storage = null)
     {
         $this->app = $this->getMockBuilder('Slim\Slim')

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/bootstrap.php">
+    <testsuite name="all-tests">
+        <directory>tests/JeremyKendall/Slim/Auth/Tests</directory>
+    </testsuite>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./src/JeremyKendall/Slim/Auth</directory>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-clover" target="/tmp/jeremykendall/slim/auth/coverage.xml"/>
+    </logging>
+    <listeners>
+        <listener class="League\PHPUnitCoverageListener\Listener">
+            <arguments>
+                <array>
+                    <element key="printer">
+                        <object class="League\PHPUnitCoverageListener\Printer\StdOut"/>
+                    </element>
+                    <element key="hook">
+                        <object class="League\PHPUnitCoverageListener\Hook\Travis"/>
+                    </element>
+                    <element key="namespace">
+                        <string>JeremyKendall\Slim\Auth</string>
+                    </element>
+                    <element key="repo_token">
+                        <string>kNi5xmfyfKFIidYMQXXSpY3NFMSoDJARO</string>
+                    </element>
+                    <element key="target_url">
+                        <string>https://coveralls.io/api/v1/jobs</string>
+                    </element>
+                    <element key="coverage_dir">
+                        <string>/tmp/jeremykendall/slim/auth</string>
+                    </element>
+                </array>
+            </arguments>
+        </listener>
+    </listeners>
+</phpunit>

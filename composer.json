@@ -35,8 +35,8 @@
     ],
     "require": {
         "php": ">=5.3.7",
-        "jeremykendall/password-validator": "dev-develop",
-        "wp-cli/php-cli-tools": "v0.9.4",
+        "jeremykendall/password-validator": "1.*",
+        "wp-cli/php-cli-tools": "~0.9.4",
         "zendframework/zend-authentication": "2.*",
         "zendframework/zend-permissions-acl": "2.*",
         "zendframework/zend-session": "2.*"

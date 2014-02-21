@@ -53,7 +53,7 @@ class Authorization extends \Slim\Middleware
     }
 
     /**
-     * Uses Slim's 'slim.before.router' hook to check for user authorization.
+     * Uses hook to check for user authorization.
      * Will redirect to named login route if user is unauthorized
      *
      * @throws \RuntimeException if there isn't a named 'login' route

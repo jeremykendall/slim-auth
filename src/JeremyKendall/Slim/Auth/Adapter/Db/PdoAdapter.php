@@ -59,7 +59,7 @@ class PdoAdapter extends AbstractAdapter
         $tableName,
         $identityColumn,
         $credentialColumn,
-        $passwordValidator
+        PasswordValidatorInterface $passwordValidator
     )
     {
         $this->db = $db;

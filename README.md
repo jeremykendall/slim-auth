@@ -7,8 +7,8 @@ component, and authorization by using the Zend Framework [Acl][3] component.
 ## DOCUMENTATION INCOMPLETE
 
 This lib is usable, but is beta software, and this documentation is incomplete.
-If you're *extremely* familiar with Zend Auth and Zend ACL, you can probably work 
-it out just fine.  Otherwise, you might want to wait for the docs to be completed.
+If you're familiar with Zend Auth and Zend ACL, you can probably work it out
+just fine.  Otherwise, you might want to wait for the docs to be completed.
 
 Caveat emptor and all that. 
 
@@ -46,8 +46,6 @@ require 'vendor/autoload.php';
 ```
 
 ## Preparing Your App For Slim Auth
-
-# Configuring Password Validator
 
 ### Database
 
@@ -136,9 +134,11 @@ route simply because it references a public resource.
 Now that you have a user database table with a `role` column and an ACL, you're
 ready to configure Slim Auth and add it to your application.
 
-First, add `use` statements for the PDO adapter and the Slim Auth Bootstrap.
+First, add `use` statements for the PasswordValidator (from the 
+[Password Validator][9] library), the PDO adapter, and the Slim Auth Bootstrap.
 
 ```
+use JeremyKendall\Password\PasswordValidator;
 use JeremyKendall\Slim\Auth\Adapter\Db\PdoAdapter;
 use JeremyKendall\Slim\Auth\Bootstrap;
 ```
@@ -167,26 +167,29 @@ From the Zend Authentication documentation:
 > type of authentication service, such as LDAP, RDBMS, or file-based storage.
 
 Slim Auth provides an RDBMS authentication adapter for PDO. The constructor
-accepts four required arguments:
+accepts five required arguments:
 
 * A `\PDO` instance
 * The name of the user table
 * The name of the identity, or username, column
 * The name of the credential, or password, column
+* An instance of `JeremyKendall\Password\PasswordValidator`
 
 ```
 $db = new \PDO(<database connection info>);
-$adapter = new PdoAdapter($db, <user table name>, <identity column name>, <credential column name>);
+$adapter = new PdoAdapter(
+    $db, 
+    <user table name>, 
+    <identity column name>, 
+    <credential column name>, 
+    new PasswordValidator()
+);
 ```
 
-#### Credential Validation Callback
-
-There is an optional fifth parameter: `$credentialValidationCallback`. If you
-do not provide a callback (and it's recommended that you don't), Slim Auth uses
-PHP's new password hash functionality by default. If you're not able to use
-PHP 5.5's new password hashing functions *and* your version of PHP doesn't
-support the userland implementation [password_compat][8], then you'll need to
-provide your own credential validation functionality via a callback.
+> **NOTE**: Please refer to the [Password Validator documentation][9] for more
+> information on the proper use of the library. If you choose not to use the 
+> Password Validator library, you will need to create your own authentication 
+> adapter.
 
 ### Putting it all Together
 
@@ -270,3 +273,4 @@ $app->get('/logout', function () use ($app) {
 [6]: https://packagist.org/packages/jeremykendall/slim-auth
 [7]: http://docs.slimframework.com/#Cookie-Session-Store
 [8]: https://github.com/ircmaxell/password_compat
+[9]: https://github.com/jeremykendall/password-validator

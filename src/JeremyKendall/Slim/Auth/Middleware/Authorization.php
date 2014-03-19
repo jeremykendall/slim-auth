@@ -66,8 +66,8 @@ class Authorization extends \Slim\Middleware
         $role = $this->getRole($auth->getIdentity());
 
         $isAuthorized = function () use ($app, $auth, $acl, $role) {
-            $resource = $app->router->getCurrentRoute()->getPattern();
-            $privilege = $app->request->getMethod();
+            $resource = $app->router()->getCurrentRoute()->getPattern();
+            $privilege = $app->request()->getMethod();
             $hasIdentity = $auth->hasIdentity();
             $isAllowed = $acl->isAllowed($role, $resource, $privilege);
 

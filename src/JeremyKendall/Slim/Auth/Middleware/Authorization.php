@@ -72,7 +72,7 @@ class Authorization extends \Slim\Middleware
             $isAllowed = $acl->isAllowed($role, $resource, $privilege);
 
             if ($hasIdentity && !$isAllowed) {
-                throw new HttpForbiddenException();
+                return $app->redirect($app->urlFor('login'));
             }
 
             if (!$hasIdentity && !$isAllowed) {

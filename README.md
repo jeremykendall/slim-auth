@@ -12,6 +12,11 @@ just fine.  Otherwise, you might want to wait for the docs to be completed.
 
 Caveat emptor and all that. 
 
+## Requirements
+
+Slim Auth works with all versions of Slim 2 >= 2.4.2.  Slim Auth has not been tested 
+against the upcoming Slim 3 release.
+
 ## Installation
 
 Install composer in your project:

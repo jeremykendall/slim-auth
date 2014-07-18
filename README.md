@@ -17,6 +17,11 @@ Caveat emptor and all that.
 Slim Auth works with all versions of Slim 2 >= 2.4.2.  Slim Auth has not been tested 
 against the upcoming Slim 3 release.
 
+## Example Implementation
+
+I've put together an example implementation to demonstrate the library in
+action.  The example implementation can be found [here][10].
+
 ## Installation
 
 Install composer in your project:
@@ -279,3 +284,4 @@ $app->get('/logout', function () use ($app) {
 [7]: http://docs.slimframework.com/#Cookie-Session-Store
 [8]: https://github.com/ircmaxell/password_compat
 [9]: https://github.com/jeremykendall/password-validator
+[10]: https://github.com/jeremykendall/slim-auth-impl

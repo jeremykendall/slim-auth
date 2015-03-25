@@ -12,6 +12,7 @@
 namespace JeremyKendall\Slim\Auth\Middleware;
 
 use JeremyKendall\Slim\Auth\Exception\HttpForbiddenException;
+use JeremyKendall\Slim\Auth\Exception\HttpUnauthorizedException;
 use Zend\Authentication\AuthenticationServiceInterface;
 use Zend\Permissions\Acl\AclInterface;
 
@@ -57,7 +58,8 @@ class Authorization extends \Slim\Middleware
      * Uses hook to check for user authorization.
      * Will redirect to named login route if user is unauthorized.
      *
-     * @throws \RuntimeException if there isn't a named 'login' route
+     * @throws HttpForbiddenException    If an authenticated user is not authorized for the resource
+     * @throws HttpUnauthorizedException If an unauthenticated user is not authorized for the resource
      */
     public function call()
     {
@@ -77,7 +79,7 @@ class Authorization extends \Slim\Middleware
             }
 
             if (!$hasIdentity && !$isAllowed) {
-                return $app->redirect($app->urlFor('login'));
+                throw new HttpUnauthorizedException();
             }
         };
 

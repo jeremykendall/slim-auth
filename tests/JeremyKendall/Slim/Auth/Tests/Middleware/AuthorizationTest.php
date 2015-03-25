@@ -2,6 +2,7 @@
 
 namespace JeremyKendall\Slim\Auth\Tests\Middleware;
 
+use JeremyKendall\Slim\Auth\Exception\AuthException;
 use JeremyKendall\Slim\Auth\Middleware\Authorization;
 use Zend\Permissions\Acl\Acl;
 use Zend\Permissions\Acl\Role\GenericRole as Role;
@@ -43,13 +44,12 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRouteAuthentication(
         $requestMethod,
-        $path, 
+        $path,
         $location,
         $hasIdentity,
         $identity,
         $httpStatus
-    )
-    {
+    ) {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => $requestMethod,
             'PATH_INFO' => $path,
@@ -65,9 +65,9 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $app = new \Slim\Slim(array('debug' => false));
 
-        $app->error(function(\Exception $e) use ($app) {
-            // Example of handling 403 FORBIDDEN
-            if ($e instanceof \JeremyKendall\Slim\Auth\Exception\HttpForbiddenException) {
+        $app->error(function (\Exception $e) use ($app) {
+            // Example of handling Auth Exceptions
+            if ($e instanceof AuthException) {
                 $app->response->setStatus($e->getCode());
                 $app->response->setBody($e->getMessage());
             }
@@ -90,9 +90,9 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
     public function authenticationDataProvider()
     {
-        /**
+        /*
         $requestMethod,
-        $path, 
+        $path,
         $location,
         $hasIdentity,
         $identity,
@@ -103,7 +103,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
             array('GET', '/', null, false, null, 200),
             array('GET', '/login', null, false, null, 200),
             array('POST', '/login', null, false, null, 200),
-            array('GET', '/member', '/login', false, null, 302),
+            array('GET', '/member', null, false, null, 401),
             // Member
             array('GET', '/admin', null, true, new Identity('member'), 403),
             array('DELETE', '/member/photo/992892', null, true, array('role' => 'member'), 200),

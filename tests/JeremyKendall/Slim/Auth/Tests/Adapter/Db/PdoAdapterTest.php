@@ -117,12 +117,36 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('User not found.', $messages[0]);
     }
 
-    private function setUpDb()
+    /**
+     * @link https://github.com/jeremykendall/slim-auth/issues/13
+     */
+    public function testIssue13()
+    {
+        $this->setUpDb(PDO::FETCH_OBJ);
+        $this->setUpAdapter();
+
+        $this->passwordValidator->expects($this->once())
+            ->method('isValid')
+            ->with(
+                $this->plainTextPassword, 
+                $this->identity['hashed_password'], 
+                $this->identity['id']
+            )
+            ->will($this->returnValue(new ValidationResult(ValidationResult::SUCCESS)));
+
+        $this->adapter->setIdentity($this->identity['email_address']);
+        $this->adapter->setCredential($this->plainTextPassword);
+
+        $result = $this->adapter->authenticate();
+        $this->assertTrue($result->isValid());
+    }
+
+    private function setUpDb($fetchStyle = PDO::FETCH_ASSOC)
     {
         $dsn = 'sqlite::memory:';
         $options = array(
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            PDO::ATTR_DEFAULT_FETCH_MODE => $fetchStyle,
         );
 
         try {

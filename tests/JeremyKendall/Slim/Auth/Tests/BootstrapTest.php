@@ -39,22 +39,19 @@ class BootstrapTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->app->expects($this->exactly(2))
+            ->method('__set')
+            ->withConsecutive(
+                ['auth', $this->anything()],
+                ['authenticator', $this->anything()]
+            );
+
         $this->app->expects($this->once())
             ->method('add')
             ->with($authMiddleware);
 
         $this->bootstrap->setAuthMiddleware($authMiddleware);
         $this->bootstrap->bootstrap();
-
-        $this->assertInstanceOf(
-            'Closure',
-            $this->app->auth
-        );
-
-        $this->assertInstanceOf(
-            'Closure',
-            $this->app->authenticator
-        );
     }
 
     public function testGetSetStorage()
@@ -68,14 +65,17 @@ class BootstrapTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDefaultMiddleware()
     {
-        $auth = $this->getMockBuilder('Zend\Authentication\AuthenticationService')
+        $auth = $this->getMockBuilder('Zend\Authentication\AuthenticationServiceInterface')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->app->auth = $auth;
+        $this->app->expects($this->once())
+            ->method('__get')
+            ->with('auth')
+            ->will($this->returnValue($auth));
 
         $this->assertInstanceOf(
-            'JeremyKendall\Slim\Auth\Middleware\Authorization', 
+            'JeremyKendall\Slim\Auth\Middleware\Authorization',
             $this->bootstrap->getAuthMiddleware()
         );
     }
@@ -84,7 +84,6 @@ class BootstrapTest extends \PHPUnit_Framework_TestCase
     {
         $this->app = $this->getMockBuilder('Slim\Slim')
             ->disableOriginalConstructor()
-            ->setMethods(array('add'))
             ->getMock();
 
         $this->adapter = $this->getMockBuilder('Zend\Authentication\Adapter\AbstractAdapter')

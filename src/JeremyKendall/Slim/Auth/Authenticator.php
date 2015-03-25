@@ -1,43 +1,46 @@
 <?php
 
 /**
- * Slim Auth
+ * Slim Auth.
  *
  * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
- * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
+ *
+ * @copyright Copyright (c) 2015 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
 
 namespace JeremyKendall\Slim\Auth;
 
-use Zend\Authentication\AuthenticationService;
+use Zend\Authentication\AuthenticationServiceInterface;
 
 /**
- * Authenticates users
+ * Authenticates users.
  */
 class Authenticator
 {
     /**
-     * @var AuthenticationService ZF Authentication Service
+     * @var AuthenticationServiceInterface ZF Authentication Service
      */
     private $auth;
 
     /**
-     * Public constructor
+     * Public constructor.
      *
-     * @param AuthenticationService $auth
+     * @param AuthenticationServiceInterface $auth
      */
-    public function __construct(AuthenticationService $auth)
+    public function __construct(AuthenticationServiceInterface $auth)
     {
         $this->auth = $auth;
     }
 
     /**
-     * Authenticates user
+     * Authenticates user.
      *
-     * @param  string                                         $identity   User identifier (username, email, etc)
-     * @param  string                                         $credential User password
+     * @param string $identity   User identifier (username, email, etc)
+     * @param string $credential User password
+     *
      * @return Zend\Authentication\Result
+     *
      * @throws Zend\Authentication\Exception\RuntimeException
      */
     public function authenticate($identity, $credential)
@@ -50,9 +53,7 @@ class Authenticator
     }
 
     /**
-     * Clears the identity from persistent storage
-     *
-     * @return void
+     * Clears the identity from persistent storage.
      */
     public function logout()
     {

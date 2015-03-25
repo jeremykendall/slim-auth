@@ -1,18 +1,19 @@
 <?php
 
 /**
- * Slim Auth
+ * Slim Auth.
  *
  * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
- * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
+ *
+ * @copyright Copyright (c) 2015 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
 
 namespace JeremyKendall\Slim\Auth\Middleware;
 
 use JeremyKendall\Slim\Auth\Exception\HttpForbiddenException;
-use Zend\Authentication\AuthenticationService;
-use Zend\Permissions\Acl\Acl;
+use Zend\Authentication\AuthenticationServiceInterface;
+use Zend\Permissions\Acl\AclInterface;
 
 /**
  * Authorization middleware: Checks user's authorization to access the
@@ -27,26 +28,26 @@ use Zend\Permissions\Acl\Acl;
 class Authorization extends \Slim\Middleware
 {
     /**
-     * Authentication service
+     * Authentication service.
      *
-     * @var AuthenticationService
+     * @var AuthenticationServiceInterface
      */
     private $auth;
 
     /**
-     * ACL
+     * AclInterface.
      *
-     * @var Acl
+     * @var AclInterface
      */
     private $acl;
 
     /**
-     * Public constructor
+     * Public constructor.
      *
-     * @param AuthenticationService $auth Authentication service
-     * @param Acl                   $acl  Zend Acl
+     * @param AuthenticationServiceInterface $auth Authentication service
+     * @param AclInterface                   $acl  Zend AclInterface
      */
-    public function __construct(AuthenticationService $auth, Acl $acl)
+    public function __construct(AuthenticationServiceInterface $auth, AclInterface $acl)
     {
         $this->auth = $auth;
         $this->acl = $acl;
@@ -54,7 +55,7 @@ class Authorization extends \Slim\Middleware
 
     /**
      * Uses hook to check for user authorization.
-     * Will redirect to named login route if user is unauthorized
+     * Will redirect to named login route if user is unauthorized.
      *
      * @throws \RuntimeException if there isn't a named 'login' route
      */
@@ -88,7 +89,8 @@ class Authorization extends \Slim\Middleware
     /**
      * Gets role from user's identity.
      *
-     * @param  mixed  $identity User's identity. If null, returns role 'guest'
+     * @param mixed $identity User's identity. If null, returns role 'guest'
+     *
      * @return string User's role
      */
     private function getRole($identity = null)
@@ -96,7 +98,6 @@ class Authorization extends \Slim\Middleware
         $role = null;
 
         if (is_object($identity)) {
-            // TODO: check for IdentityInterface (?)
             $role = $identity->getRole();
         }
 

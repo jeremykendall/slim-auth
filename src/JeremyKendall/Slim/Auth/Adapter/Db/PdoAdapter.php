@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Slim Auth
+ * Slim Auth.
  *
  * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
- * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
+ *
+ * @copyright Copyright (c) 2015 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
 
@@ -16,7 +17,7 @@ use Zend\Authentication\Adapter\AbstractAdapter;
 use Zend\Authentication\Result as AuthenticationResult;
 
 /**
- * Authentication adapter
+ * Authentication adapter.
  */
 class PdoAdapter extends AbstractAdapter
 {
@@ -46,7 +47,7 @@ class PdoAdapter extends AbstractAdapter
     protected $passwordValidator;
 
     /**
-     * Public constructor
+     * Public constructor.
      *
      * @param PDO                        $db
      * @param string                     $tableName
@@ -59,9 +60,8 @@ class PdoAdapter extends AbstractAdapter
         $tableName,
         $identityColumn,
         $credentialColumn,
-        $passwordValidator
-    )
-    {
+        PasswordValidatorInterface $passwordValidator
+    ) {
         $this->db = $db;
         $this->tableName = $tableName;
         $this->identityColumn = $identityColumn;
@@ -70,7 +70,7 @@ class PdoAdapter extends AbstractAdapter
     }
 
     /**
-     * Performs authentication
+     * Performs authentication.
      *
      * @return AuthenticationResult Authentication result
      */
@@ -95,17 +95,17 @@ class PdoAdapter extends AbstractAdapter
             unset($user[$this->getCredentialColumn()]);
 
             return new AuthenticationResult(AuthenticationResult::SUCCESS, $user, array());
-        } else {
-            return new AuthenticationResult(
-                AuthenticationResult::FAILURE_CREDENTIAL_INVALID,
-                array(),
-                array('Invalid username or password provided')
-            );
         }
+
+        return new AuthenticationResult(
+            AuthenticationResult::FAILURE_CREDENTIAL_INVALID,
+            array(),
+            array('Invalid username or password provided')
+        );
     }
 
     /**
-     * Finds user to authenticate
+     * Finds user to authenticate.
      *
      * @return array|null Array of user data, null if no user found
      */
@@ -119,11 +119,13 @@ class PdoAdapter extends AbstractAdapter
         $stmt = $this->db->prepare($sql);
         $stmt->execute(array('identity' => $this->getIdentity()));
 
-        return $stmt->fetch();
+        // Explicitly setting fetch mode fixes
+        // https://github.com/jeremykendall/slim-auth/issues/13
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Get tableName
+     * Get tableName.
      *
      * @return string tableName
      */
@@ -133,7 +135,7 @@ class PdoAdapter extends AbstractAdapter
     }
 
     /**
-     * Get identityColumn
+     * Get identityColumn.
      *
      * @return string identityColumn
      */
@@ -143,7 +145,7 @@ class PdoAdapter extends AbstractAdapter
     }
 
     /**
-     * Get credentialColumn
+     * Get credentialColumn.
      *
      * @return string credentialColumn
      */

@@ -4,7 +4,6 @@ namespace JeremyKendall\Slim\Auth\Tests;
 
 use JeremyKendall\Slim\Auth\Bootstrap;
 use Slim\Slim;
-use Zend\Authentication\AuthenticationService;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Permissions\Acl\Acl;
 
@@ -56,10 +55,17 @@ class BootstrapTest extends \PHPUnit_Framework_TestCase
 
     public function testGetSetStorage()
     {
-        $storage = $this->getMock('Zend\Authentication\Storage\StorageInterface');
+        $defaultStorage = $this->bootstrap->getStorage();
 
-        $this->assertNull($this->bootstrap->getStorage());
+        $this->assertInstanceOf(
+            'Zend\Authentication\Storage\StorageInterface',
+            $defaultStorage
+        );
+        $this->assertEquals('slim_auth', $defaultStorage->getNamespace());
+
+        $storage = $this->getMock('Zend\Authentication\Storage\StorageInterface');
         $this->bootstrap->setStorage($storage);
+
         $this->assertSame($storage, $this->bootstrap->getStorage());
     }
 

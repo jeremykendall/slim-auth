@@ -12,17 +12,17 @@
 namespace JeremyKendall\Slim\Auth\Exception;
 
 /**
- * HTTP 403 Exception.
+ * HTTP 401 Exception.
  */
-class HttpForbiddenException extends AuthException
+class HttpUnauthorizedException extends AuthException
 {
     /**
      * Public constructor.
      */
     public function __construct()
     {
-        $message = 'You are not authorized to access this resource';
-        $code = 403;
+        $message = 'You must authenticate to access this resource.';
+        $code = 401;
 
         parent::__construct($message, $code);
     }

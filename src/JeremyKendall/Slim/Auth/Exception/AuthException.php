@@ -9,7 +9,7 @@
  * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
 
-namespace JeremyKendall\Slim\Auth;
+namespace JeremyKendall\Slim\Auth\Exception;
 
 /**
  * Slim Auth Exception.

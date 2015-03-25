@@ -64,7 +64,9 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($identity));
 
         $app = new \Slim\Slim(array('debug' => false));
+
         $app->error(function(\Exception $e) use ($app) {
+            // Example of handling 403 FORBIDDEN
             if ($e instanceof \JeremyKendall\Slim\Auth\Exception\HttpForbiddenException) {
                 $app->response->setStatus($e->getCode());
                 $app->response->setBody($e->getMessage());

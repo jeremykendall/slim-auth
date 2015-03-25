@@ -1,30 +1,30 @@
 <?php
 
 /**
- * Slim Auth
+ * Slim Auth.
  *
  * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
- * @copyright Copyright (c) 2013 Jeremy Kendall (http://about.me/jeremykendall)
+ *
+ * @copyright Copyright (c) 2015 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
 
 namespace JeremyKendall\Slim\Auth;
 
-use JeremyKendall\Slim\Auth\Authenticator;
 use JeremyKendall\Slim\Auth\Middleware\Authorization as AuthorizationMiddleware;
 use Slim\Slim;
 use Zend\Authentication\Adapter\AbstractAdapter;
 use Zend\Authentication\AuthenticationService;
 use Zend\Authentication\Storage\StorageInterface;
-use Zend\Permissions\Acl\Acl;
+use Zend\Permissions\Acl\AclInterface;
 
 /**
- * Convenience class to assist wiring up Slim Auth defaults
+ * Convenience class to assist wiring up Slim Auth defaults.
  */
 class Bootstrap
 {
     /**
-     * @var Acl Access control list
+     * @var AclInterface Access control list
      */
     private $acl;
 
@@ -49,13 +49,13 @@ class Bootstrap
     private $authMiddleware;
 
     /**
-     * Public constructor
+     * Public constructor.
      *
      * @param Slim            $app
      * @param AbstractAdapter $adapter
-     * @param Acl             $acl
+     * @param AclInterface    $acl
      */
-    public function __construct(Slim $app, AbstractAdapter $adapter, Acl $acl)
+    public function __construct(Slim $app, AbstractAdapter $adapter, AclInterface $acl)
     {
         $this->app = $app;
         $this->adapter = $adapter;
@@ -63,7 +63,7 @@ class Bootstrap
     }
 
     /**
-     * Wires up Slim Auth defaults
+     * Wires up Slim Auth defaults.
      *
      * Creates the Zend AuthenticationService, adds the AuthenticationService
      * and the Authenticator to the Slim resource locator, and adds the
@@ -89,7 +89,7 @@ class Bootstrap
     }
 
     /**
-     * Get acl
+     * Get acl.
      *
      * @return acl
      */
@@ -99,7 +99,7 @@ class Bootstrap
     }
 
     /**
-     * Gets storage
+     * Gets storage.
      *
      * @return StorageInterface AuthenticationService storage
      */
@@ -109,7 +109,7 @@ class Bootstrap
     }
 
     /**
-     * Set storage
+     * Set storage.
      *
      * @param StorageInterface $storage the value to set
      */
@@ -119,7 +119,7 @@ class Bootstrap
     }
 
     /**
-     * Gets auth adapter adapter
+     * Gets auth adapter adapter.
      *
      * @return AbstractAdapter Auth adapter
      */
@@ -129,7 +129,7 @@ class Bootstrap
     }
 
     /**
-     * Get authMiddleware
+     * Get authMiddleware.
      *
      * @return AuthorizationMiddleware Authorization middleware
      */
@@ -146,7 +146,7 @@ class Bootstrap
     }
 
     /**
-     * Set authMiddleware
+     * Set authMiddleware.
      *
      * @param $authMiddleware Authorization middleware
      */

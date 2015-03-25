@@ -42,8 +42,8 @@ class BootstrapTest extends \PHPUnit_Framework_TestCase
         $this->app->expects($this->exactly(2))
             ->method('__set')
             ->withConsecutive(
-                ['auth', $this->anything()],
-                ['authenticator', $this->anything()]
+                array('auth', $this->anything()),
+                array('authenticator', $this->anything())
             );
 
         $this->app->expects($this->once())

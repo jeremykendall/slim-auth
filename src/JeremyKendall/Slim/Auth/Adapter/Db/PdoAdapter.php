@@ -119,7 +119,9 @@ class PdoAdapter extends AbstractAdapter
         $stmt = $this->db->prepare($sql);
         $stmt->execute(array('identity' => $this->getIdentity()));
 
-        return $stmt->fetch();
+        // Explicitly setting fetch mode fixes
+        // https://github.com/jeremykendall/slim-auth/issues/13
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**

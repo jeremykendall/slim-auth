@@ -9,12 +9,3 @@ $loader = require dirname(__DIR__) . '/vendor/autoload.php';
 $loader->add('JeremyKendall\\Slim\\Auth\\Tests\\', __DIR__);
 
 define('SLIM_MODE', 'testing');
-
-function d($var) {
-    var_dump($var);
-}
-
-function dd($var) {
-    d($var);
-    die();
-}

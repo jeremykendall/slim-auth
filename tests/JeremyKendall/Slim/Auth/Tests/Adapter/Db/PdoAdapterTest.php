@@ -63,8 +63,8 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->passwordValidator->expects($this->once())
             ->method('isValid')
             ->with(
-                $this->plainTextPassword, 
-                $this->identity['hashed_password'], 
+                $this->plainTextPassword,
+                $this->identity['hashed_password'],
                 $this->identity['id']
             )
             ->will($this->returnValue(new ValidationResult(ValidationResult::SUCCESS)));
@@ -89,7 +89,7 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
             ->method('isValid')
             ->with(
                 'bad password',
-                $this->identity['hashed_password'], 
+                $this->identity['hashed_password'],
                 $this->identity['id']
             )
             ->will($this->returnValue(
@@ -128,8 +128,8 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
         $this->passwordValidator->expects($this->once())
             ->method('isValid')
             ->with(
-                $this->plainTextPassword, 
-                $this->identity['hashed_password'], 
+                $this->plainTextPassword,
+                $this->identity['hashed_password'],
                 $this->identity['id']
             )
             ->will($this->returnValue(new ValidationResult(ValidationResult::SUCCESS)));
@@ -178,11 +178,11 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
 
     private function setUpAdapter()
     {
-        $this->passwordValidator = 
+        $this->passwordValidator =
             $this->getMock('JeremyKendall\Password\PasswordValidatorInterface');
 
         $this->adapter = new PdoAdapter(
-            $this->db, 
+            $this->db,
             $tableName = 'application_users',
             $identityColumn = 'email_address',
             $credentialColumn = 'hashed_password',

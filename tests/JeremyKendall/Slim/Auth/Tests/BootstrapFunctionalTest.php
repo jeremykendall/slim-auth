@@ -18,7 +18,7 @@ class BootstrapFunctionalTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Confirms that $this->app->auth and $this->app->authenticator
-     * return the expected class instances
+     * return the expected class instances.
      */
     public function testBootstrap()
     {
@@ -33,7 +33,7 @@ class BootstrapFunctionalTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf(
             'JeremyKendall\Slim\Auth\Authenticator',
-            $app->authenticator 
+            $app->authenticator
         );
     }
 }

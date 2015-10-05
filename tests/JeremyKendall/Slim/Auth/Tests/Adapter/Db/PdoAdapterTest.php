@@ -65,7 +65,7 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
             ->with(
                 $this->plainTextPassword,
                 $this->identity['hashed_password'],
-                $this->identity['id']
+                $this->identity['email_address']
             )
             ->will($this->returnValue(new ValidationResult(ValidationResult::SUCCESS)));
 
@@ -90,7 +90,7 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
             ->with(
                 'bad password',
                 $this->identity['hashed_password'],
-                $this->identity['id']
+                $this->identity['email_address']
             )
             ->will($this->returnValue(
                 new ValidationResult(ValidationResult::FAILURE_PASSWORD_INVALID)
@@ -130,7 +130,7 @@ class PdoAdapterTest extends \PHPUnit_Framework_TestCase
             ->with(
                 $this->plainTextPassword,
                 $this->identity['hashed_password'],
-                $this->identity['id']
+                $this->identity['email_address']
             )
             ->will($this->returnValue(new ValidationResult(ValidationResult::SUCCESS)));
 

@@ -25,7 +25,7 @@
         "zf2"
     ],
     "require": {
-        "php": ">=5.3.7",
+        "php": ">=5.5.0",
         "jeremykendall/password-validator": "3.*",
         "wp-cli/php-cli-tools": "~0.10",
         "zendframework/zend-authentication": "2.*",

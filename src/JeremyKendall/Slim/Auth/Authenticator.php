@@ -51,6 +51,20 @@ class Authenticator
 
         return $this->auth->authenticate();
     }
+    
+    public function hasIdentity()
+    {
+        if ($this->auth->hasIdentity()) {
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    public function getIdentity()
+    {
+        return $this->auth->getIdentity();
+    }
 
     /**
      * Clears the identity from persistent storage.

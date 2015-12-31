@@ -24,9 +24,6 @@
         "zend framework",
         "zf2"
     ],
-    "bin": [
-        "bin/version-check"
-    ],
     "require": {
         "php": ">=5.3.7",
         "jeremykendall/password-validator": "3.*",

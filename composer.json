@@ -27,13 +27,11 @@
     "require": {
         "php": ">=5.5.0",
         "jeremykendall/password-validator": "3.*",
-        "wp-cli/php-cli-tools": "~0.10",
         "zendframework/zend-authentication": "2.*",
         "zendframework/zend-permissions-acl": "2.*",
         "zendframework/zend-session": "2.*"
     },
     "require-dev": {
-        "league/phpunit-coverage-listener": "~1.1",
         "phpunit/phpunit": "4.*",
         "slim/slim": "^2.4.2",
         "jeremykendall/debug-die": "0.0.1.*"

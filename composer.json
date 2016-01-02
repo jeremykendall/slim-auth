@@ -32,7 +32,6 @@
         "zendframework/zend-session": "2.5.1"
     },
     "require-dev": {
-        "league/phpunit-coverage-listener": "~1.1",
         "phpunit/phpunit": "4.*",
         "slim/slim": "^2.4.2",
         "jeremykendall/debug-die": "0.0.1.*"

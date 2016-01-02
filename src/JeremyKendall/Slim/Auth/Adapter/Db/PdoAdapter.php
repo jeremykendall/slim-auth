@@ -8,7 +8,6 @@
  * @copyright Copyright (c) 2015 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
-
 namespace JeremyKendall\Slim\Auth\Adapter\Db;
 
 use JeremyKendall\Password\PasswordValidatorInterface;

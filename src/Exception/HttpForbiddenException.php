@@ -13,7 +13,7 @@ namespace JeremyKendall\Slim\Auth\Exception;
 /**
  * HTTP 403 Exception.
  */
-final class HttpForbiddenException extends \RuntimeException implements HttpException
+final class HttpForbiddenException extends AuthException implements HttpException
 {
     /**
      * @var int HTTP status code

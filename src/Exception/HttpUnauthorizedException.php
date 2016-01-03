@@ -13,7 +13,7 @@ namespace JeremyKendall\Slim\Auth\Exception;
 /**
  * HTTP 401 Exception.
  */
-final class HttpUnauthorizedException extends \RuntimeException implements HttpException
+final class HttpUnauthorizedException extends AuthException implements HttpException
 {
     /**
      * @var int HTTP status code

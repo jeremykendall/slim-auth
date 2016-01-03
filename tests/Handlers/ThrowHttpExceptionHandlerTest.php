@@ -3,7 +3,6 @@
 namespace JeremyKendall\Slim\Auth\Tests\Middleware;
 
 use JeremyKendall\Slim\Auth\Handlers\ThrowHttpExceptionHandler;
-use Psr\Http\Message\ResponseInterface;
 
 class ThrowHttpExceptionHandlerTest extends \PHPUnit_Framework_TestCase
 {

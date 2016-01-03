@@ -10,6 +10,7 @@
  */
 namespace JeremyKendall\Slim\Auth\Middleware;
 
+use JeremyKendall\Slim\Auth\Handlers\AuthHandler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Authentication\AuthenticationServiceInterface;
@@ -36,15 +37,25 @@ final class Authorization
     private $acl;
 
     /**
+     * @var AuthHandler
+     */
+    private $handler;
+
+    /**
      * Public constructor.
      *
-     * @param AuthenticationServiceInterface $auth Authentication service
-     * @param AclInterface                   $acl  Zend AclInterface
+     * @param AuthenticationServiceInterface $auth    Authentication service
+     * @param AclInterface                   $acl     Zend AclInterface
+     * @param AuthHandler                    $handler
      */
-    public function __construct(AuthenticationServiceInterface $auth, AclInterface $acl)
-    {
+    public function __construct(
+        AuthenticationServiceInterface $auth,
+        AclInterface $acl,
+        AuthHandler $handler
+    ) {
         $this->auth = $auth;
         $this->acl = $acl;
+        $this->handler = $handler;
     }
 
     /**
@@ -73,12 +84,12 @@ final class Authorization
 
         if ($hasIdentity && !$isAllowed) {
             // Authenticated but unauthorized for this resource
-            return $response->withStatus(403);
+            return $this->handler->notAuthorized($response);
         }
 
         if (!$hasIdentity && !$isAllowed) {
             // Not authenticated and must be authenticated to access this resource
-            return $response->withStatus(401);
+            return $this->handler->notAuthenticated($response);
         }
 
         return $next($request, $response);

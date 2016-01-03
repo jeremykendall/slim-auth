@@ -2,6 +2,7 @@
 
 namespace JeremyKendall\Slim\Auth\Tests\Middleware;
 
+use JeremyKendall\Slim\Auth\Handlers\AuthHandler;
 use JeremyKendall\Slim\Auth\Middleware\Authorization;
 use Slim\Http\Environment;
 use Slim\Http\Request;
@@ -13,14 +14,19 @@ use Zend\Permissions\Acl\Role\GenericRole as Role;
 class AuthorizationTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Zend\Authentication\AuthenticationServiceInterface
+     * @var \Zend\Authentication\AuthenticationServiceInterface
      */
     private $auth;
 
     /**
-     * @var Zend\Permissions\Acl\AclInterface
+     * @var \Zend\Permissions\Acl\AclInterface
      */
     private $acl;
+
+    /**
+     * @var AuthHandler
+     */
+    private $handler;
 
     /**
      * @var Authorization
@@ -33,6 +39,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $this->auth = $this->getMock('Zend\Authentication\AuthenticationServiceInterface');
         $this->acl = $this->getConfiguredAcl();
+        $this->handler = $this->getMock('JeremyKendall\Slim\Auth\Handlers\AuthHandler');
     }
 
     protected function tearDown()
@@ -61,7 +68,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $request = Request::createFromEnvironment($env);
         $response = new Response();
-        $middleware = new Authorization($this->auth, $this->acl);
+        $middleware = new Authorization($this->auth, $this->acl, $this->handler);
 
         $this->auth->expects($this->once())
             ->method('hasIdentity')
@@ -70,6 +77,20 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $this->auth->expects($this->once())
             ->method('getIdentity')
             ->will($this->returnValue($identity));
+
+        if ($httpStatus === 401) {
+            $this->handler->expects($this->once())
+                ->method('notAuthenticated')
+                ->with($response)
+                ->willReturn($response->withStatus(401));
+        }
+
+        if ($httpStatus === 403) {
+            $this->handler->expects($this->once())
+                ->method('notAuthorized')
+                ->with($response)
+                ->willReturn($response->withStatus(403));
+        }
 
         // ROUTE
         $route = new Route([$requestMethod], $pattern, function ($req, $res, $args) {});
@@ -93,7 +114,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $request = Request::createFromEnvironment($env);
         $response = new Response();
-        $middleware = new Authorization($this->auth, $this->acl);
+        $middleware = new Authorization($this->auth, $this->acl, $this->handler);
 
         $this->auth->expects($this->never())
             ->method('hasIdentity');

@@ -11,7 +11,9 @@
 namespace JeremyKendall\Slim\Auth\Exception;
 
 /**
- * HTTP 403 Exception.
+ * HTTP 403 Forbidden Exception.
+ *
+ * @see https://httpstatuses.com/403
  */
 final class HttpForbiddenException extends AuthException implements HttpException
 {

@@ -1,8 +1,12 @@
-# Slim Auth [![Build Status](https://travis-ci.org/jeremykendall/slim-auth.png?branch=master)](https://travis-ci.org/jeremykendall/slim-auth) [![Coverage Status](https://coveralls.io/repos/jeremykendall/slim-auth/badge.png?branch=master)](https://coveralls.io/r/jeremykendall/slim-auth?branch=master) [![Dependencies Status](https://depending.in/jeremykendall/slim-auth.png)](http://depending.in/jeremykendall/slim-auth)
+# Slim Auth [![Build Status](https://travis-ci.org/jeremykendall/slim-auth.png?branch=slim-2.x)](https://travis-ci.org/jeremykendall/slim-auth) [![Coverage Status](https://coveralls.io/repos/jeremykendall/slim-auth/badge.png?branch=slim-2.x)]
 
 Slim Auth is an authorization and authentication library for the [Slim Framework][1].
 Authentication is provided by the Zend Framework [Zend\Authentication][2] 
 component, and authorization by the Zend Framework [Zend\Permissions\Acl][3] component.
+
+## Slim 2.x Support
+
+This is the Slim 2.x branch of Slim Auth. Slim >=3.x is supported in Slim Auth >= 2.0.
 
 ## Fair Warning: Documentation Mostly Complete 
 

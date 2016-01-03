@@ -37,8 +37,13 @@
         "jeremykendall/debug-die": "0.0.1.*"
     },
     "autoload": {
-        "psr-0": {
+        "psr-4": {
             "JeremyKendall\\Slim\\Auth\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JeremyKendall\\Slim\\Auth\\Tests\\": "tests/"
         }
     },
     "suggest": {

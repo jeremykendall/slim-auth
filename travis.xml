@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="tests/bootstrap.php">
     <testsuite name="all-tests">
-        <directory>tests/JeremyKendall/Slim/Auth/Tests</directory>
+        <directory>tests</directory>
     </testsuite>
     <filter>
         <whitelist>
-            <directory suffix=".php">./src/JeremyKendall/Slim/Auth</directory>
+            <directory suffix=".php">src</directory>
         </whitelist>
     </filter>
 </phpunit>

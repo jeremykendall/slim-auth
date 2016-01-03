@@ -5,27 +5,21 @@
  *
  * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
  *
- * @copyright Copyright (c) 2015 Jeremy Kendall (http://about.me/jeremykendall)
+ * @copyright Copyright (c) 2016 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
 namespace JeremyKendall\Slim\Auth\Middleware;
 
-use JeremyKendall\Slim\Auth\Exception\HttpForbiddenException;
-use JeremyKendall\Slim\Auth\Exception\HttpUnauthorizedException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Zend\Authentication\AuthenticationServiceInterface;
 use Zend\Permissions\Acl\AclInterface;
 
 /**
  * Authorization middleware: Checks user's authorization to access the
  * requested URI.
- *
- * Will redirect a guest to name login route if they attempt to visit a
- * secured URI.
- *
- * Returns HTTP 403 if authenticated user visits a URI they are not
- * authorized for.
  */
-class Authorization extends \Slim\Middleware
+final class Authorization
 {
     /**
      * Authentication service.
@@ -54,37 +48,40 @@ class Authorization extends \Slim\Middleware
     }
 
     /**
-     * Uses hook to check for user authorization.
-     * Will redirect to named login route if user is unauthorized.
+     * Determines whether or not user has access to requested resource.
      *
-     * @throws HttpForbiddenException    If an authenticated user is not authorized for the resource
-     * @throws HttpUnauthorizedException If an unauthenticated user is not authorized for the resource
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface      $response
+     * @param callable               $next
+     *
+     * @return ResponseInterface Status 401 if not authenticated, 403 if not authorized
      */
-    public function call()
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        $app = $this->app;
-        $auth = $this->auth;
-        $acl = $this->acl;
-        $role = $this->getRole($auth->getIdentity());
+        $route = $request->getAttribute('route', null);
 
-        $isAuthorized = function () use ($app, $auth, $acl, $role) {
-            $resource = $app->router->getCurrentRoute()->getPattern();
-            $privilege = $app->request->getMethod();
-            $hasIdentity = $auth->hasIdentity();
-            $isAllowed = $acl->isAllowed($role, $resource, $privilege);
+        if ($route === null) {
+            // User likely accessing a non-existant route. Calling next middleware.
+            return $next($request, $response);
+        }
 
-            if ($hasIdentity && !$isAllowed) {
-                throw new HttpForbiddenException();
-            }
+        $role = $this->getRole($this->auth->getIdentity());
+        $resource = $routePattern = $route->getPattern();
+        $privilege = $request->getMethod();
+        $hasIdentity = $this->auth->hasIdentity();
+        $isAllowed = $this->acl->isAllowed($role, $resource, $privilege);
 
-            if (!$hasIdentity && !$isAllowed) {
-                throw new HttpUnauthorizedException();
-            }
-        };
+        if ($hasIdentity && !$isAllowed) {
+            // Authenticated but unauthorized for this resource
+            return $response->withStatus(403);
+        }
 
-        $app->hook('slim.before.dispatch', $isAuthorized);
+        if (!$hasIdentity && !$isAllowed) {
+            // Not authenticated and must be authenticated to access this resource
+            return $response->withStatus(401);
+        }
 
-        $this->next->call();
+        return $next($request, $response);
     }
 
     /**
@@ -106,7 +103,7 @@ class Authorization extends \Slim\Middleware
             $role = $identity['role'];
         }
 
-        if (!$role) {
+        if ($role === null) {
             $role = 'guest';
         }
 

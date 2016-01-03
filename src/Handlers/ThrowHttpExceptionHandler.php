@@ -14,13 +14,22 @@ use JeremyKendall\Slim\Auth\Exception\HttpForbiddenException;
 use JeremyKendall\Slim\Auth\Exception\HttpUnauthorizedException;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Throws exceptions based on intended HTTP response.
+ */
 final class ThrowHttpExceptionHandler implements AuthHandler
 {
+    /**
+     * {@inheritDoc}
+     */
     public function notAuthenticated(ResponseInterface $response)
     {
         throw new HttpForbiddenException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function notAuthorized(ResponseInterface $response)
     {
         throw new HttpUnauthorizedException();

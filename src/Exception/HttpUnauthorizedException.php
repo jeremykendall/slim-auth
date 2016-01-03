@@ -16,7 +16,7 @@ namespace JeremyKendall\Slim\Auth\Exception;
 final class HttpUnauthorizedException extends \RuntimeException implements HttpException
 {
     /**
-     * @var int Http status code
+     * @var int HTTP status code
      */
     private $statusCode;
 
@@ -32,6 +32,9 @@ final class HttpUnauthorizedException extends \RuntimeException implements HttpE
         parent::__construct($message, $code);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getStatusCode()
     {
         return $this->statusCode;

@@ -12,6 +12,9 @@ namespace JeremyKendall\Slim\Auth\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Auth Handler interface.
+ */
 interface AuthHandler
 {
     /**

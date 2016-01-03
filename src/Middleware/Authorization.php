@@ -37,6 +37,8 @@ final class Authorization
     private $acl;
 
     /**
+     * AuthHandler interface.
+     *
      * @var AuthHandler
      */
     private $handler;
@@ -46,7 +48,7 @@ final class Authorization
      *
      * @param AuthenticationServiceInterface $auth    Authentication service
      * @param AclInterface                   $acl     Zend AclInterface
-     * @param AuthHandler                    $handler
+     * @param AuthHandler                    $handler AuthHandler interface
      */
     public function __construct(
         AuthenticationServiceInterface $auth,

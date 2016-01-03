@@ -11,9 +11,14 @@
 namespace JeremyKendall\Slim\Auth\Exception;
 
 /**
- * Slim Auth Http Exception Interface.
+ * Slim Auth HTTP Exception Interface.
  */
 interface HttpException
 {
+    /**
+     * Get HTTP status code.
+     *
+     * @return int HTTP status code
+     */
     public function getStatusCode();
 }

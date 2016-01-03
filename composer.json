@@ -24,26 +24,26 @@
         "zend framework",
         "zf2"
     ],
-    "bin": [
-        "bin/version-check"
-    ],
     "require": {
-        "php": ">=5.3.7",
+        "php": ">=5.5.0",
         "jeremykendall/password-validator": "3.*",
-        "wp-cli/php-cli-tools": "~0.10",
         "zendframework/zend-authentication": "2.*",
         "zendframework/zend-permissions-acl": "2.*",
         "zendframework/zend-session": "2.*"
     },
     "require-dev": {
-        "league/phpunit-coverage-listener": "~1.1",
         "phpunit/phpunit": "4.*",
-        "slim/slim": "^2.4.2",
+        "slim/slim": "^3.0",
         "jeremykendall/debug-die": "0.0.1.*"
     },
     "autoload": {
-        "psr-0": {
+        "psr-4": {
             "JeremyKendall\\Slim\\Auth\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JeremyKendall\\Slim\\Auth\\Tests\\": "tests/"
         }
     },
     "suggest": {

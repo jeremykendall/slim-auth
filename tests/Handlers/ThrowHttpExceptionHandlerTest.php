@@ -22,15 +22,15 @@ class ThrowHttpExceptionHandlerTest extends \PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
-    public function testNotAuthenticatedThrowsForbidden()
+    public function testNotAuthorizedThrowsForbidden()
     {
         $this->setExpectedException('JeremyKendall\Slim\Auth\Exception\HttpForbiddenException');
-        $this->handler->notAuthenticated($this->response);
+        $this->handler->notAuthorized($this->response);
     }
 
     public function testNotAuthenticatedThrowsUnauthorized()
     {
         $this->setExpectedException('JeremyKendall\Slim\Auth\Exception\HttpUnauthorizedException');
-        $this->handler->notAuthorized($this->response);
+        $this->handler->notAuthenticated($this->response);
     }
 }

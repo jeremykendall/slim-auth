@@ -24,7 +24,7 @@ final class ThrowHttpExceptionHandler implements AuthHandler
      */
     public function notAuthenticated(ResponseInterface $response)
     {
-        throw new HttpForbiddenException();
+        throw new HttpUnauthorizedException();
     }
 
     /**
@@ -32,6 +32,6 @@ final class ThrowHttpExceptionHandler implements AuthHandler
      */
     public function notAuthorized(ResponseInterface $response)
     {
-        throw new HttpUnauthorizedException();
+        throw new HttpForbiddenException();
     }
 }

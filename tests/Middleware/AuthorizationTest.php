@@ -131,7 +131,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
             ['GET', '/admin', null, true, new Identity('member'), 403, '/admin'],
             ['DELETE', '/member/photo/992892', null, true, ['role' => 'member'], 200, '/member/photo/{id}'],
             // Admin
-            ['GET', '/admin', null, true, ['role' => 'admin'], 200, '/member/photo/{id}'],
+            ['GET', '/admin', null, true, ['role' => 'admin'], 200, '/admin'],
         ];
     }
 
@@ -151,7 +151,6 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
 
         $acl->allow('guest', '/');
         $acl->allow('guest', '/login', ['GET', 'POST']);
-        $acl->deny('guest', '/admin');
 
         $acl->allow('member', '/member');
         $acl->allow('member', '/member/photo/{id}', 'DELETE');

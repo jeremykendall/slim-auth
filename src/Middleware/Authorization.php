@@ -61,15 +61,15 @@ final class Authorization
         $route = $request->getAttribute('route', null);
 
         if ($route === null) {
-            // User likely accessing a non-existant route. Calling next middleware.
+            // User likely accessing a nonexistent route. Calling next middleware.
             return $next($request, $response);
         }
 
         $role = $this->getRole($this->auth->getIdentity());
-        $resource = $routePattern = $route->getPattern();
+        $resource = $route->getPattern();
         $privilege = $request->getMethod();
-        $hasIdentity = $this->auth->hasIdentity();
         $isAllowed = $this->acl->isAllowed($role, $resource, $privilege);
+        $hasIdentity = $this->auth->hasIdentity();
 
         if ($hasIdentity && !$isAllowed) {
             // Authenticated but unauthorized for this resource
@@ -93,20 +93,14 @@ final class Authorization
      */
     private function getRole($identity = null)
     {
-        $role = null;
-
         if (is_object($identity)) {
-            $role = $identity->getRole();
+            return $identity->getRole();
         }
 
         if (is_array($identity) && isset($identity['role'])) {
-            $role = $identity['role'];
+            return $identity['role'];
         }
 
-        if ($role === null) {
-            $role = 'guest';
-        }
-
-        return $role;
+        return 'guest';
     }
 }

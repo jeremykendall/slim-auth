@@ -1,40 +1,48 @@
-# Slim Auth [![Build Status](https://travis-ci.org/jeremykendall/slim-auth.png?branch=master)](https://travis-ci.org/jeremykendall/slim-auth) [![Coverage Status](https://coveralls.io/repos/jeremykendall/slim-auth/badge.png?branch=master)](https://coveralls.io/r/jeremykendall/slim-auth?branch=master) [![Dependencies Status](https://depending.in/jeremykendall/slim-auth.png)](http://depending.in/jeremykendall/slim-auth)
+# Slim Auth [![Build Status](https://travis-ci.org/jeremykendall/slim-auth.png?branch=master)](https://travis-ci.org/jeremykendall/slim-auth)
 
 Slim Auth is an authorization and authentication library for the [Slim Framework][1].
-Authentication is provided by the Zend Framework [Zend\Authentication][2] 
+Authentication is provided by the Zend Framework [Zend\Authentication][2]
 component, and authorization by the Zend Framework [Zend\Permissions\Acl][3] component.
 
-## Fair Warning: Documentation Mostly Complete 
+## Slim Framework v3+
+
+This is the Slim Auth version supporting Slim Framework version 3 and above.
+For Slim Framework version 2 support, please see the [slim-2.x](https://github.com/jeremykendall/slim-auth/tree/slim-2.x) branch.
+
+## Fair Warning: Documentation Mostly Complete
 
 Slim Auth is fully functional and production ready (I've used it in production
 in multiple projects), but this documentation is incomplete. (Current status of
 the documentation is ~90% complete.)
 
-If you're familiar with [Zend\Authentication][2] and [Zend\Permissions\Acl][3], you'll be able to implement the library without any trouble. Otherwise, you might want to wait for the docs to be completed (no ETA) or open a GitHub issue with any questions or problems you encounter.
+If you're familiar with [Zend\Authentication][2] and [Zend\Permissions\Acl][3],
+you'll be able to implement the library without any trouble. Otherwise, you
+might want to wait for the docs to be completed (no ETA) or open a GitHub issue
+with any questions or problems you encounter.
 
-Caveat emptor and all that. 
+Caveat emptor and all that.
 
 ## Slim SessionCookie No Longer Recomended
 
-**TL;DR**: You *will* experience unexpected behavior if you use 
-`Zend\Authentication\Storage\Session` as your auth storage and 
+**TL;DR**: You *will* experience unexpected behavior if you use
+`Zend\Authentication\Storage\Session` as your auth storage and
 `Slim\Middleware\SessionCookie` to provide encrypted cookies when your Slim
-version is >= 2.6.  
+version is >= 2.6.
 
 Earlier versions of this documentation (and the [sample implementation][10])
-demonstrated the use of Slim's [SessionCookie Middleware](http://docs.slimframework.com/#Cookie-Session-Store) as a way to handle session storage in concert with Zend Session. As of [Slim 2.6.0](https://github.com/slimphp/Slim/releases/tag/2.6.0), 
+demonstrated the use of Slim's [SessionCookie Middleware](http://docs.slimframework.com/#Cookie-Session-Store) as a way to handle session storage in concert with Zend Session. As of [Slim 2.6.0](https://github.com/slimphp/Slim/releases/tag/2.6.0),
 Zend Session and Slim's SessionCookie middleware no longer play well together,
 and I've opted for a Zend Session only approach.
 
 ## Requirements
 
-Slim Auth works with all versions of Slim 2 >= 2.4.2. Slim Auth has not been
-tested against the upcoming Slim 3 release.
+Slim Auth works with all versions of Slim 3 and above.
 
 ## Example Implementation
 
-I've put together an example implementation to demonstrate the library in
-action.  The example implementation can be found [here][10].
+An example implementation of Slim Auth for Slim 3 and above is not yet
+available, although the unit tests and documentation should get you where you
+need to go just fine.
 
 ## Installation
 
@@ -96,7 +104,7 @@ class Acl extends ZendAcl
     {
         // APPLICATION ROLES
         $this->addRole('guest');
-        // member role "extends" guest, meaning the member role will get all of 
+        // member role "extends" guest, meaning the member role will get all of
         // the guest role permissions by default
         $this->addRole('member', 'guest');
         $this->addRole('admin');
@@ -144,13 +152,12 @@ route simply because you forgot to explicitly deny the `DELETE` route.
 Now that you have a user database table with a `role` column and an ACL, you're
 ready to configure Slim Auth and add it to your application.
 
-First, add `use` statements for the PasswordValidator (from the 
-[Password Validator][9] library), the PDO adapter, and the Slim Auth Bootstrap.
+First, add `use` statements for the PasswordValidator (from the
+[Password Validator][9] library) and the PDO adapter.
 
 ```
 use JeremyKendall\Password\PasswordValidator;
 use JeremyKendall\Slim\Auth\Adapter\Db\PdoAdapter;
-use JeremyKendall\Slim\Auth\Bootstrap;
 ```
 
 Next, create your Slim application.
@@ -178,17 +185,17 @@ accepts five required arguments:
 ```
 $db = new \PDO(<database connection info>);
 $adapter = new PdoAdapter(
-    $db, 
-    <user table name>, 
-    <identity column name>, 
-    <credential column name>, 
+    $db,
+    <user table name>,
+    <identity column name>,
+    <credential column name>,
     new PasswordValidator()
 );
 ```
 
 > **NOTE**: Please refer to the [Password Validator documentation][9] for more
-> information on the proper use of the library. If you choose not to use the 
-> Password Validator library, you will need to create your own authentication 
+> information on the proper use of the library. If you choose not to use the
+> Password Validator library, you will need to create your own authentication
 > adapter.
 
 ### Putting it all Together
@@ -204,7 +211,7 @@ $authBootstrap->bootstrap();
 ### Login Route
 
 You'll need a login route, of course, and it's important that you name your
-route `login` using Slim's [Route Names][4] feature. 
+route `login` using Slim's [Route Names][4] feature.
 
 ```
 $app->map('/login', function() {})->via('GET', 'POST')->name('login');
@@ -256,7 +263,7 @@ $app->get('/logout', function () use ($app) {
 
 That should get you most of the way. I'll complete documentation as soon as I'm
 able, but can't currently commit to an ETA. Again, please feel free to open and
-issue with any questions you might have regarding implementation. 
+issue with any questions you might have regarding implementation.
 
 Thanks for considering Slim Auth for your project.
 

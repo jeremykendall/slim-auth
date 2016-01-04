@@ -173,9 +173,13 @@ by default.
 
 The `ThrowHttpExceptionHandler` will throw one of two `HttpException`s.
 * If an unauthenticated request attempts to access a resource that requires
-  authentication, an `HttpUnauthorizedException` will be thrown.
+  authentication, an `HttpUnauthorizedException` will be thrown
+    * Example: A visitor tries to visit their member profile page
+    * Corresponds to an [`HTTP 401`](https://httpstatuses.com/401) status
 * If an authenticated request attempts to access a resource that is not
-  authorized for that request, an `HttpForbiddenException` will be thrown.
+  authorized for that request, an `HttpForbiddenException` will be thrown
+    * Example: A member attempts to visit an admin page
+    * Corresponds to an [`HTTP 403`](https://httpstatuses.com/403) status
 
 These exceptions would probably best be handled by a custom [Slim Error Handler][13].
 
@@ -209,8 +213,8 @@ interface. Use the [existing auth handlers](src/Handlers) as a guide.
 
 ## Configuring Slim Auth
 
-Now that you have a user database table with a `role` column, an auth adapter,
-and an ACL, you're ready to configure Slim Auth.
+Now that you have a user database table with a `role` column, an Authentication
+Adapter, and an ACL, you're ready to configure Slim Auth.
 
 ### Sample Configuration
 

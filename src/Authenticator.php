@@ -15,7 +15,7 @@ use Zend\Authentication\AuthenticationServiceInterface;
 /**
  * Authenticates users.
  */
-class Authenticator
+final class Authenticator
 {
     /**
      * @var AuthenticationServiceInterface ZF Authentication Service

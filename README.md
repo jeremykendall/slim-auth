@@ -216,14 +216,13 @@ interface. Use the [existing auth handlers](src/Handlers) as a guide.
 Now that you have a user database table with a `role` column, an Authentication
 Adapter, and an ACL, you're ready to configure Slim Auth.
 
-### Sample Configuration
+### Sample Container Service Configuration
 
 Slim 3.x uses the [Pimple DI container by default][16], so this sample configuration
 uses [Pimple][15] and the `\Slim\Container`.
 
 ``` php
 $container = new \Slim\Container();
-
 ```
 
 Make sure you add your `AuthAdapter` and `Acl` to your container.
@@ -265,6 +264,15 @@ Finally add the Slim Auth middlware to your app.
 ``` php
 $app->add($app->getContainer()->get('slimAuthRedirectMiddleware'));
 ```
+
+### Overriding SlimAuthProvider Defaults
+
+The following services/properties can be set _before_ calling
+`\Slim\Container::register()` to override default settings.
+
+* `$container['redirectNotAuthenticated']`
+* `$container['redirectNotAuthorized']`
+* `$container['authStorage']`
 
 ### Example Login Route
 

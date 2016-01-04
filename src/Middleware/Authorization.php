@@ -82,19 +82,19 @@ final class Authorization
         $resource = $route->getPattern();
         $privilege = $request->getMethod();
         $isAllowed = $this->acl->isAllowed($role, $resource, $privilege);
-        $hasIdentity = $this->auth->hasIdentity();
+        $isAuthenticated = $this->auth->hasIdentity();
 
-        if ($hasIdentity && !$isAllowed) {
+        if ($isAllowed) {
+            return $next($request, $response);
+        }
+
+        if ($isAuthenticated) {
             // Authenticated but unauthorized for this resource
             return $this->handler->notAuthorized($response);
         }
 
-        if (!$hasIdentity && !$isAllowed) {
-            // Not authenticated and must be authenticated to access this resource
-            return $this->handler->notAuthenticated($response);
-        }
-
-        return $next($request, $response);
+        // Not authenticated and must be authenticated to access this resource
+        return $this->handler->notAuthenticated($response);
     }
 
     /**

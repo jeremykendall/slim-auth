@@ -18,20 +18,20 @@ use Psr\Http\Message\ResponseInterface;
 final class RedirectHandler implements AuthHandler
 {
     /**
-     * @var string Redirect URI or path when user is unauthenticated
+     * @var string Redirect URI or path when user is not authenticated
      */
     private $redirectNotAuthenticated;
 
     /**
-     * @var string Redirect URI or path when user is unauthorized for resource
+     * @var string Redirect URI or path when user is not authorized for resource
      */
     private $redirectNotAuthorized;
 
     /**
      * Public constructor.
      *
-     * @param string $redirectNotAuthenticated Redirect URI or path when user is unauthenticated
-     * @param string $redirectNotAuthorized    Redirect URI or path when user is unauthorized for resource
+     * @param string $redirectNotAuthenticated Redirect URI or path when user is not authenticated
+     * @param string $redirectNotAuthorized    Redirect URI or path when user is not authorized for resource
      */
     public function __construct($redirectNotAuthenticated, $redirectNotAuthorized)
     {

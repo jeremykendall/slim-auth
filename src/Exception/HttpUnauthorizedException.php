@@ -20,7 +20,7 @@ namespace JeremyKendall\Slim\Auth\Exception;
  *
  * @see https://httpstatuses.com/401
  */
-final class HttpUnauthorizedException extends AuthException implements HttpException
+final class HttpUnauthorizedException extends \RuntimeException implements HttpException
 {
     /**
      * @var int HTTP status code

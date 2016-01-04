@@ -15,7 +15,7 @@ namespace JeremyKendall\Slim\Auth\Exception;
  *
  * @see https://httpstatuses.com/403
  */
-final class HttpForbiddenException extends AuthException implements HttpException
+final class HttpForbiddenException extends \RuntimeException implements HttpException
 {
     /**
      * @var int HTTP status code

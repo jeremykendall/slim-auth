@@ -86,6 +86,22 @@ class AuthenticatorTest extends \PHPUnit_Framework_TestCase
         $this->authenticator->logout();
     }
 
+    public function testHasIdentityProxiesToAuthenticationService()
+    {
+        $this->auth->expects($this->once())
+            ->method('hasIdentity');
+
+        $this->authenticator->hasIdentity();
+    }
+
+    public function testGetIdentityProxiesToAuthenticationService()
+    {
+        $this->auth->expects($this->once())
+            ->method('getIdentity');
+
+        $this->authenticator->getIdentity();
+    }
+
     private function getFailureResult()
     {
         return new Result(Result::FAILURE, array(), array('FAILZORS'));

@@ -58,4 +58,24 @@ final class Authenticator
     {
         $this->auth->clearIdentity();
     }
+
+    /**
+     * Returns true if and only if an identity is available.
+     *
+     * @return bool
+     */
+    public function hasIdentity()
+    {
+        return $this->auth->hasIdentity();
+    }
+
+    /**
+     * Returns the authenticated identity or null if no identity is available.
+     *
+     * @return mixed|null
+     */
+    public function getIdentity()
+    {
+        return $this->auth->getIdentity();
+    }
 }

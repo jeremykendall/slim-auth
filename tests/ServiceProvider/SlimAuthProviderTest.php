@@ -37,12 +37,11 @@ class SlimAuthProviderTest extends \PHPUnit_Framework_TestCase
      * The \JeremyKendall\Slim\Auth\ServiceProvider\SlimAuthProvider should be
      * able to provide services to the \Slim\Container.
      */
-    public function testCanProvideServicesToSlimContainer()
+    public function testCanProvideSlimAuthServicesToSlimContainer()
     {
         $container = $this->getSlimContainer();
         $container->register($this->provider);
 
-        $this->assertInstanceOf('Zend\Permissions\Acl\AclInterface', $container->get('acl'));
         $this->assertInstanceOf(
             'JeremyKendall\Slim\Auth\Handlers\RedirectHandler',
             $container->get('redirectHandler')
@@ -61,30 +60,51 @@ class SlimAuthProviderTest extends \PHPUnit_Framework_TestCase
      */
     public function testSlimContainerCanProvideAuthAdapterToProviderAuthService()
     {
-        $container = $this->getSlimContainer();
-        // Implementor's auth adapter
-        $container['authAdapter'] = function ($c) {
-            return $this->getMockBuilder('Zend\Authentication\Adapter\AbstractAdapter')
-                ->disableOriginalConstructor()
-                ->getMockForAbstractClass();
-        };
+        $container = $this->getSlimContainerWithAuthenticationServiceAndAcl();
         $container->register($this->provider);
 
-        // AuthenticationService provided by SlimAuthProvider
+        // Auth adapter provided by implementor's container
+        $this->assertInstanceOf(
+            'Zend\Authentication\Adapter\AdapterInterface',
+            $container->get('auth')->getAdapter()
+        );
+    }
+
+    public function testSlimAuthServicesExistOnSlimContainer()
+    {
+        $container = $this->getSlimContainerWithAuthenticationServiceAndAcl();
+        $container->register($this->provider);
+
         $authenticationService = $container->get('auth');
 
         $this->assertInstanceOf(
             'Zend\Authentication\AuthenticationServiceInterface',
             $authenticationService
         );
-        // Auth adapter provided by implementor's container
-        $this->assertInstanceOf(
-            'Zend\Authentication\Adapter\AdapterInterface',
-            $authenticationService->getAdapter()
-        );
+
+        // Middleware using RedirectHandler
         $this->assertInstanceOf(
             'JeremyKendall\Slim\Auth\Middleware\Authorization',
-            $container->get('slimAuthAuthorizationMiddleware')
+            $container->get('slimAuthRedirectMiddleware')
+        );
+        $this->assertInstanceOf(
+            'JeremyKendall\Slim\Auth\Handlers\RedirectHandler',
+            $container->get('slimAuthRedirectMiddleware')->getHandler()
+        );
+
+        // Middleware using ThrowHttpExceptionHandler
+        $this->assertInstanceOf(
+            'JeremyKendall\Slim\Auth\Middleware\Authorization',
+            $container->get('slimAuthThrowHttpExceptionMiddleware')
+        );
+        $this->assertInstanceOf(
+            'JeremyKendall\Slim\Auth\Handlers\ThrowHttpExceptionHandler',
+            $container->get('slimAuthThrowHttpExceptionMiddleware')->getHandler()
+        );
+
+        $this->assertInstanceOf(
+            'JeremyKendall\Slim\Auth\Authenticator',
+            $container->get('authenticator')
         );
     }
 
@@ -94,6 +114,24 @@ class SlimAuthProviderTest extends \PHPUnit_Framework_TestCase
     private function getSlimContainer()
     {
         $container = new \Slim\Container();
+
+        return $container;
+    }
+
+    private function getSlimContainerWithAuthenticationServiceAndAcl()
+    {
+        $container = $this->getSlimContainer();
+        // Implementor's auth adapter
+        $container['authAdapter'] = function ($c) {
+            return $this->getMockBuilder('Zend\Authentication\Adapter\AbstractAdapter')
+                ->disableOriginalConstructor()
+                ->getMockForAbstractClass();
+        };
+        $container['acl'] = function ($c) {
+            return $this->getMockBuilder('Zend\Permissions\Acl\AclInterface')
+                ->disableOriginalConstructor()
+                ->getMockForAbstractClass();
+        };
 
         return $container;
     }

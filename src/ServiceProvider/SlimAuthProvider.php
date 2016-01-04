@@ -16,8 +16,7 @@ use Pimple\ServiceProviderInterface;
 /**
  * Provides Slim Auth services for use with a \Slim\Container.
  *
- * You MUST provide your own AuthAdapter in your instance of \Slim\Container
- * and set it on the AuthenticationService.
+ * You MUST provide your own AuthAdapter and Acl in your instance of \Slim\Container.
  *
  * @see http://pimple.sensiolabs.org/#extending-a-container Pimple - Extending a Container
  */
@@ -38,10 +37,6 @@ final class SlimAuthProvider implements ServiceProviderInterface
             return $auth;
         };
 
-        $pimple['acl'] = function ($c) {
-            return new \Zend\Permissions\Acl\Acl();
-        };
-
         $pimple['redirectHandler'] = function ($c) {
             return new \JeremyKendall\Slim\Auth\Handlers\RedirectHandler('/login', '/403');
         };
@@ -50,12 +45,24 @@ final class SlimAuthProvider implements ServiceProviderInterface
             return new \JeremyKendall\Slim\Auth\Handlers\ThrowHttpExceptionHandler();
         };
 
-        $pimple['slimAuthAuthorizationMiddleware'] = function ($c) {
+        $pimple['slimAuthRedirectMiddleware'] = function ($c) {
             return new \JeremyKendall\Slim\Auth\Middleware\Authorization(
                 $c->get('auth'),
                 $c->get('acl'),
                 $c->get('redirectHandler')
             );
+        };
+
+        $pimple['slimAuthThrowHttpExceptionMiddleware'] = function ($c) {
+            return new \JeremyKendall\Slim\Auth\Middleware\Authorization(
+                $c->get('auth'),
+                $c->get('acl'),
+                $c->get('throwHttpExceptionHandler')
+            );
+        };
+
+        $pimple['authenticator'] = function ($c) {
+            return new \JeremyKendall\Slim\Auth\Authenticator($c->get('auth'));
         };
     }
 }

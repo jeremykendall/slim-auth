@@ -45,7 +45,7 @@
     </target>
 
     <target name="phpdoc" description="Generate API documentation">
-        <exec passthru="${passthru}" command="phpdoc --force" />
+        <exec passthru="${passthru}" command="phpdoc --ansi --force" />
     </target>
 
     <target name="build" description="Build app">

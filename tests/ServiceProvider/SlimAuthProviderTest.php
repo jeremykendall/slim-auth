@@ -11,6 +11,7 @@
 namespace JeremyKendall\Slim\Auth\Tests\ServiceProvider;
 
 use JeremyKendall\Slim\Auth\ServiceProvider\SlimAuthProvider;
+use Slim\Http\Response;
 
 class SlimAuthProviderTest extends \PHPUnit_Framework_TestCase
 {
@@ -106,6 +107,36 @@ class SlimAuthProviderTest extends \PHPUnit_Framework_TestCase
             'JeremyKendall\Slim\Auth\Authenticator',
             $container->get('authenticator')
         );
+    }
+
+    public function testCanOverrideAuthStorage()
+    {
+        $container = $this->getSlimContainerWithAuthenticationServiceAndAcl();
+        $storageInterface = $this->getMockBuilder('Zend\Authentication\Storage\StorageInterface')
+            ->getMock();
+        $container['authStorage'] = $storageInterface;
+        $container->register($this->provider);
+
+        $this->assertSame($storageInterface, $container->get('auth')->getStorage());
+    }
+
+    public function testCanOverrideRedirectHandlerArgs()
+    {
+        $redirectNotAuthenticated = '/alternate-login';
+        $redirectNotAuthorized = '/you-shall-not-pass';
+
+        $container = $this->getSlimContainerWithAuthenticationServiceAndAcl();
+        $container['redirectNotAuthenticated'] = '/alternate-login';
+        $container['redirectNotAuthorized'] = '/you-shall-not-pass';
+        $container->register($this->provider);
+
+        $redirect = $container->get('redirectHandler');
+
+        $notAuthenticated = $redirect->notAuthenticated(new Response());
+        $this->assertEquals($redirectNotAuthenticated, $notAuthenticated->getHeaderLine('Location'));
+
+        $notAuthorized = $redirect->notAuthorized(new Response());
+        $this->assertEquals($redirectNotAuthorized, $notAuthorized->getHeaderLine('Location'));
     }
 
     /**

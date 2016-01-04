@@ -31,14 +31,31 @@ final class SlimAuthProvider implements ServiceProviderInterface
     {
         $pimple['auth'] = function ($c) {
             $auth = new \Zend\Authentication\AuthenticationService();
-            $auth->setStorage(new \Zend\Authentication\Storage\Session());
             $auth->setAdapter($c->get('authAdapter'));
+
+            if ($c->has('authStorage')) {
+                $auth->setStorage($c->get('authStorage'));
+            }
 
             return $auth;
         };
 
         $pimple['redirectHandler'] = function ($c) {
-            return new \JeremyKendall\Slim\Auth\Handlers\RedirectHandler('/login', '/403');
+            $redirectNotAuthenticated = '/login';
+            $redirectNotAuthorized = '/403';
+
+            if (isset($c['redirectNotAuthenticated'])) {
+                $redirectNotAuthenticated = $c['redirectNotAuthenticated'];
+            }
+
+            if (isset($c['redirectNotAuthorized'])) {
+                $redirectNotAuthorized = $c['redirectNotAuthorized'];
+            }
+
+            return new \JeremyKendall\Slim\Auth\Handlers\RedirectHandler(
+                $redirectNotAuthenticated,
+                $redirectNotAuthorized
+            );
         };
 
         $pimple['throwHttpExceptionHandler'] = function ($c) {

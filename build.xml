@@ -8,6 +8,10 @@
         <include name="**/*.php" />
     </fileset>
 
+    <fileset id="tests" dir="${project.basedir}/tests">
+        <include name="**/*.php" />
+    </fileset>
+
     <target name="clean" description="Clean build path">
         <delete dir="${project.basedir}/build" />
         <mkdir dir="${project.basedir}/build" />
@@ -28,6 +32,7 @@
             passthru="${passthru}"
             dir="${project.basedir}"
             command="phpunit
+                --colors=always
                 --log-junit=${project.basedir}/build/logs/junit.xml
                 --coverage-clover=${project.basedir}/build/logs/clover.xml
                 --coverage-html=${project.basedir}/build/coverage" />
@@ -41,39 +46,7 @@
     </target>
 
     <target name="phpdoc" description="Generate API documentation">
-        <exec passthru="${passthru}" command="phpdoc --force" />
-    </target>
-
-    <target name="phpunit-gen-report">
-        <phpunitreport
-            infile="${project.basedir}/build/logs/junit.xml"
-            format="frames"
-            todir="${project.basedir}/build/logs"
-            />
-    </target>
-
-    <target name="phpcpd" description="Copy/Paste detection">
-        <phpcpd>
-            <fileset refid="src" />
-            <formatter
-                type="pmd"
-                outfile="${project.basedir}/build/logs/pmd-cpd.xml" />
-        </phpcpd>
-    </target>
-
-    <target name="phploc" description="Generate phploc.csv">
-        <phploc reportType="csv" reportName="phploc" reportDirectory="${project.basedir}/build/logs">
-            <fileset refid="src" />
-        </phploc>
-    </target>
-
-    <target name="phpmd" description="Mess detection">
-        <exec
-            passthru="${passthru}"
-            dir="${project.basedir}/src"
-            command="phpmd ${project.basedir}/src xml cleancode,codesize,controversial,design,naming,unusedcode
-            --suffixes .php
-            --reportfile ${project.basedir}/build/logs/pmd.xml" />
+        <exec passthru="${passthru}" command="phpdoc --ansi --force" />
     </target>
 
     <target name="build" description="Build app">
@@ -81,10 +54,6 @@
         <phingCall target="phplint" />
         <phingCall target="php-cs-fixer" />
         <phingCall target="phpunit" />
-        <phingCall target="phpunit-gen-report" />
-        <phingCall target="phpcpd" />
-        <phingCall target="phpmd" />
-        <phingCall target="phploc" />
         <phingCall target="phpdoc" />
     </target>
 </project>

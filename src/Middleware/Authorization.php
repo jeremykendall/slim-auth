@@ -5,11 +5,12 @@
  *
  * @link      http://github.com/jeremykendall/slim-auth Canonical source repo
  *
- * @copyright Copyright (c) 2016 Jeremy Kendall (http://about.me/jeremykendall)
+ * @copyright Copyright (c) 2013-2016 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
 namespace JeremyKendall\Slim\Auth\Middleware;
 
+use JeremyKendall\Slim\Auth\Handlers\AuthHandler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Authentication\AuthenticationServiceInterface;
@@ -36,15 +37,27 @@ final class Authorization
     private $acl;
 
     /**
+     * AuthHandler interface.
+     *
+     * @var AuthHandler
+     */
+    private $handler;
+
+    /**
      * Public constructor.
      *
-     * @param AuthenticationServiceInterface $auth Authentication service
-     * @param AclInterface                   $acl  Zend AclInterface
+     * @param AuthenticationServiceInterface $auth    Authentication service
+     * @param AclInterface                   $acl     Zend AclInterface
+     * @param AuthHandler                    $handler AuthHandler interface
      */
-    public function __construct(AuthenticationServiceInterface $auth, AclInterface $acl)
-    {
+    public function __construct(
+        AuthenticationServiceInterface $auth,
+        AclInterface $acl,
+        AuthHandler $handler
+    ) {
         $this->auth = $auth;
         $this->acl = $acl;
+        $this->handler = $handler;
     }
 
     /**
@@ -69,19 +82,29 @@ final class Authorization
         $resource = $route->getPattern();
         $privilege = $request->getMethod();
         $isAllowed = $this->acl->isAllowed($role, $resource, $privilege);
-        $hasIdentity = $this->auth->hasIdentity();
+        $isAuthenticated = $this->auth->hasIdentity();
 
-        if ($hasIdentity && !$isAllowed) {
+        if ($isAllowed) {
+            return $next($request, $response);
+        }
+
+        if ($isAuthenticated) {
             // Authenticated but unauthorized for this resource
-            return $response->withStatus(403);
+            return $this->handler->notAuthorized($response);
         }
 
-        if (!$hasIdentity && !$isAllowed) {
-            // Not authenticated and must be authenticated to access this resource
-            return $response->withStatus(401);
-        }
+        // Not authenticated and must be authenticated to access this resource
+        return $this->handler->notAuthenticated($response);
+    }
 
-        return $next($request, $response);
+    /**
+     * Gets handler.
+     *
+     * @return AuthHandler
+     */
+    public function getHandler()
+    {
+        return $this->handler;
     }
 
     /**

@@ -11,28 +11,12 @@ For Slim Framework version 2 support, please see the [slim-2.x](https://github.c
 
 ## Fair Warning: Documentation Mostly Complete
 
-Slim Auth is fully functional and production ready (I've used it in production
-in multiple projects), but this documentation is incomplete. (Current status of
-the documentation is ~90% complete.)
-
 If you're familiar with [Zend\Authentication][2] and [Zend\Permissions\Acl][3],
 you'll be able to implement the library without any trouble. Otherwise, you
 might want to wait for the docs to be completed (no ETA) or open a GitHub issue
 with any questions or problems you encounter.
 
 Caveat emptor and all that.
-
-## Slim SessionCookie No Longer Recomended
-
-**TL;DR**: You *will* experience unexpected behavior if you use
-`Zend\Authentication\Storage\Session` as your auth storage and
-`Slim\Middleware\SessionCookie` to provide encrypted cookies when your Slim
-version is >= 2.6.
-
-Earlier versions of this documentation (and the [sample implementation][10])
-demonstrated the use of Slim's [SessionCookie Middleware](http://docs.slimframework.com/#Cookie-Session-Store) as a way to handle session storage in concert with Zend Session. As of [Slim 2.6.0](https://github.com/slimphp/Slim/releases/tag/2.6.0),
-Zend Session and Slim's SessionCookie middleware no longer play well together,
-and I've opted for a Zend Session only approach.
 
 ## Requirements
 
@@ -50,19 +34,19 @@ Installation is provided via [Composer][11].
 
 First, install Composer.
 
-```
+``` bash
 curl -s https://getcomposer.org/installer | php
 ```
 
 Then install Slim Auth with the following Composer command.
 
-```
+``` bash
 composer require jeremykendall/slim-auth
 ```
 
 Finally, add this line at the top of your application’s index.php file:
 
-```
+``` php
 require 'vendor/autoload.php';
 ```
 
@@ -77,7 +61,7 @@ the roles in your ACL. The table name and all other column names are up to you.
 Here's an example schema for a user table. If you don't already have a user
 table, feel free to use this one:
 
-```
+``` sql
 CREATE TABLE IF NOT EXISTS [users] (
     [id] INTEGER NOT NULL PRIMARY KEY,
     [username] VARCHAR(50) NOT NULL,
@@ -93,7 +77,7 @@ of users have access to which routes within your Slim application. Below is a ve
 
 *Please refer to the [Zend\Permissions\Acl documentation][3] for complete details on using the Zend Framework ACL component.*
 
-```
+``` php
 namespace Example;
 
 use Zend\Permissions\Acl\Acl as ZendAcl;
@@ -121,7 +105,7 @@ class Acl extends ZendAcl
         // Now we allow or deny a role's access to resources. The third argument
         // is 'privilege'. We're using HTTP method as 'privilege'.
         $this->allow('guest', '/', 'GET');
-        $this->allow('guest', '/login', array('GET', 'POST'));
+        $this->allow('guest', '/login', ['GET', 'POST']);
         $this->allow('guest', '/logout', 'GET');
 
         $this->allow('member', '/member', 'GET');
@@ -147,26 +131,7 @@ specified route via *all* HTTP methods. **Be extremely vigilant here.** You
 wouldn't want to accidentally allow a 'guest' role access to an admin `DELETE`
 route simply because you forgot to explicitly deny the `DELETE` route.
 
-## Configuring Slim Auth: Defaults
-
-Now that you have a user database table with a `role` column and an ACL, you're
-ready to configure Slim Auth and add it to your application.
-
-First, add `use` statements for the PasswordValidator (from the
-[Password Validator][9] library) and the PDO adapter.
-
-```
-use JeremyKendall\Password\PasswordValidator;
-use JeremyKendall\Slim\Auth\Adapter\Db\PdoAdapter;
-```
-
-Next, create your Slim application.
-
-```
-$app = new \Slim\Slim();
-```
-
-### Authentication Adapter
+### Authentication Adapters
 
 From the Zend Authentication documentation:
 
@@ -182,7 +147,7 @@ accepts five required arguments:
 * The name of the credential, or password, column
 * An instance of `JeremyKendall\Password\PasswordValidator`
 
-```
+``` php
 $db = new \PDO(<database connection info>);
 $adapter = new PdoAdapter(
     $db,
@@ -198,64 +163,159 @@ $adapter = new PdoAdapter(
 > Password Validator library, you will need to create your own authentication
 > adapter.
 
-### Putting it all Together
+## Auth Handlers
 
-Now it's time to instantiate your ACL and bootstrap Slim Auth.
+Slim Auth uses handlers to determine what action to take based on
+authentication and authorization status. Slim Auth provides two auth handlers
+by default.
 
+### ThrowHttpExceptionHandler
+
+The `ThrowHttpExceptionHandler` will throw one of two `HttpException`s.
+* If an unauthenticated request attempts to access a resource that requires
+  authentication, an `HttpUnauthorizedException` will be thrown
+    * Example: A visitor tries to visit their member profile page
+    * Corresponds to an [`HTTP 401`](https://httpstatuses.com/401) status
+* If an authenticated request attempts to access a resource that is not
+  authorized for that request, an `HttpForbiddenException` will be thrown
+    * Example: A member attempts to visit an admin page
+    * Corresponds to an [`HTTP 403`](https://httpstatuses.com/403) status
+
+These exceptions would probably best be handled by a custom [Slim Error Handler][13].
+
+#### About the HttpException
+
+The above exceptions implement the `HttpException` interface, which provides a `getStatusCode` method.
+* `HttpUnauthorizedException::getStatusCode` returns `401`
+* `HttpForbiddenException::getStatusCode` returns `403`
+
+### RedirectHandler
+
+The `RedirectHandler` allows you to specify redirect locations in response to
+authentication and authorization status. The `RedirectHandler` constructor
+takes two `string` arguments: `$redirectNotAuthenticated` and
+`$redirectNotAuthorized`.
+
+For example, a common use case is to redirect requests that should be
+authenticated to a `/login` route and forbidden requests to a route that
+informs the user what's happening, perhaps `/403`. The corresponding
+`RedirectHandler` would be created like so:
+
+``` php
+$handler = new RedirectHandler('/login', '/403');
 ```
-$acl = new \Namespace\For\Your\Acl();
-$authBootstrap = new Bootstrap($app, $adapter, $acl);
-$authBootstrap->bootstrap();
+
+### Custom Auth Handlers
+
+If neither of those handlers are appropriate for your use case, you can create
+your own by implementing the [`AuthHandler`](src/Handlers/AuthHandler.php)
+interface. Use the [existing auth handlers](src/Handlers) as a guide.
+
+## Configuring Slim Auth
+
+Now that you have a user database table with a `role` column, an Authentication
+Adapter, and an ACL, you're ready to configure Slim Auth.
+
+### Sample Container Service Configuration
+
+Slim 3.x uses the [Pimple DI container by default][16], so this sample configuration
+uses [Pimple][15] and the `\Slim\Container`.
+
+``` php
+$container = new \Slim\Container();
 ```
 
-### Login Route
+Make sure you add your `AuthAdapter` and `Acl` to your container.
+* NOTE: The container key for the `AuthAdapter` MUST be named `authAdapter`.
+* NOTE: The container key for the `Acl` MUST be named `acl`.
 
-You'll need a login route, of course, and it's important that you name your
-route `login` using Slim's [Route Names][4] feature.
+``` php
+// ... snip ...
 
+$container['authAdapter'] = function ($c) {
+    $db = new \PDO(<database connection info>);
+    $adapter = new \JeremyKendall\Slim\Auth\Adapter\Db\PdoAdapter(
+        $db,
+        <user table name>,
+        <identity column name>,
+        <credential column name>,
+        new \JeremyKendall\Password\PasswordValidator()
+    );
+
+    return $adapter;
+};
+
+$container['acl'] = function ($c) {
+    return new \Example\Acl();
+};
+
+// ... snip ...
 ```
-$app->map('/login', function() {})->via('GET', 'POST')->name('login');
+
+Use the `SlimAuthProvider` to register the remaining Slim Auth services
+on your container.
+
+``` php
+$container->register(new \JeremyKendall\Slim\Auth\ServiceProvider\SlimAuthProvider());
 ```
 
-This allows you to use whatever route pattern you like for your login route.
-Slim Auth will redirect users to the correct route using Slim's `urlFor()`
-[Route Helper][5].
+Finally add the Slim Auth middlware to your app.
 
-Here's a sample login route:
-
+``` php
+$app->add($app->getContainer()->get('slimAuthRedirectMiddleware'));
 ```
-// Login route MUST be named 'login'
-$app->map('/login', function () use ($app) {
-    $username = null;
 
-    if ($app->request()->isPost()) {
-        $username = $app->request->post('username');
-        $password = $app->request->post('password');
+NOTE: You may choose between the `slimAuthRedirectMiddleware` service (which
+uses the RedirectHandler) or the `slimAuthThrowHttpExceptionMiddleware` service
+(which uses the ThrowHttpExceptionHandler), or you can create your own handler
+and register your own service.
 
-        $result = $app->authenticator->authenticate($username, $password);
+### Overriding SlimAuthProvider Defaults
+
+The following services/properties can be set _before_ calling
+`\Slim\Container::register()` to override default settings.
+
+* `$container['redirectNotAuthenticated']`
+* `$container['redirectNotAuthorized']`
+* `$container['authStorage']`
+
+### Example Login Route
+
+Using the `Authenticator` to authenticate users might be accomplished in this manner.
+
+```php
+$app->map(['GET', 'POST'], '/login', function ($request, $response, $args) {
+    $params = $request->getParsedBody();
+
+    if ($request->isPost()) {
+        $username = $params['username'];
+        $password = $params['password'];
+
+        $result = $this->get('authenticator')->authenticate($username, $password);
 
         if ($result->isValid()) {
-            $app->redirect('/');
-        } else {
-            $messages = $result->getMessages();
-            $app->flashNow('error', $messages[0]);
+            // Success! Redirect somewhere.
         }
+
+        // Login failed, handle error here
     }
 
-    $app->render('login.twig', array('username' => $username));
-})->via('GET', 'POST')->name('login');
+    // Render login view here, perhaps.
+
+    return $response;
+});
 ```
 
-### Logout Route
+### Example Logout Route
 
 As authentication stores the authenticated user's identity, logging out
 consists of nothing more than clearing that identity. Clearing the identity is
 handled by `Authenticator::logout`.
 
-```
-$app->get('/logout', function () use ($app) {
-    $app->authenticator->logout();
-    $app->redirect('/');
+``` php
+$app->get('/logout', function ($request, $response, $args) {
+    $this->get('authenticator')->logout();
+    // Redirect somewhere after logout.
 });
 ```
 
@@ -265,7 +325,7 @@ That should get you most of the way. I'll complete documentation as soon as I'm
 able, but can't currently commit to an ETA. Again, please feel free to open and
 issue with any questions you might have regarding implementation.
 
-Thanks for considering Slim Auth for your project.
+Thanks for considering Slim Auth for your Slim 3.x project.
 
 [1]: http://slimframework.com/
 [2]: http://framework.zend.com/manual/current/en/modules/zend.authentication.intro.html
@@ -278,3 +338,7 @@ Thanks for considering Slim Auth for your project.
 [10]: https://github.com/jeremykendall/slim-auth-impl
 [11]: http://getcomposer.org
 [12]: http://php.net/manual/en/book.pdo.php
+[13]: http://www.slimframework.com/docs/handlers/error.html
+[14]: http://www.slimframework.com/docs/objects/router.html#route-names
+[15]: http://pimple.sensiolabs.org/
+[16]: http://www.slimframework.com/docs/concepts/di.html

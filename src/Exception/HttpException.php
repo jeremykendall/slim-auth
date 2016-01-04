@@ -8,17 +8,17 @@
  * @copyright Copyright (c) 2013-2016 Jeremy Kendall (http://about.me/jeremykendall)
  * @license   http://github.com/jeremykendall/slim-auth/blob/master/LICENSE MIT
  */
-namespace JeremyKendall\Slim\Auth;
+namespace JeremyKendall\Slim\Auth\Exception;
 
 /**
- * Interface for identity classes.
+ * Slim Auth HTTP Exception Interface.
  */
-interface IdentityInterface
+interface HttpException
 {
     /**
-     * Gets user's role.
+     * Get HTTP status code.
      *
-     * @return string User's role in application
+     * @return int HTTP status code
      */
-    public function getRole();
+    public function getStatusCode();
 }

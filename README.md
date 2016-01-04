@@ -195,14 +195,11 @@ For example, a common use case is to redirect requests that should be authentica
 $handler = new RedirectHandler('/login', '/403');
 ```
 
-This means that a [named `login` route][14] is not necessary as it was in Slim
-Auth for Slim 2.x.
-
 ### Custom Auth Handlers
 
 If neither of those handlers are appropriate for your use case, you can create
-your own by implementing the `AuthHandler` interface. Use the existing auth
-handlers as a guide.
+your own by implementing the [`AuthHandler`](src/Handlers/AuthHandler.php)
+interface. Use the [existing auth handlers](src/Handlers) as a guide.
 
 ## Configuring Slim Auth
 
@@ -240,29 +237,62 @@ $container['authAdapter'] = function ($c) {
 };
 
 $container['acl'] = function ($c) {
-    return new \My\Project\Acl();
+    return new \Example\Acl();
 };
 
 // ... snip ...
 ```
 
-Finally use the `SlimAuthProvider` to register the remaining Slim Auth services
+Use the `SlimAuthProvider` to register the remaining Slim Auth services
 on your container.
 
 ``` php
 $container->register(new \JeremyKendall\Slim\Auth\ServiceProvider\SlimAuthProvider());
 ```
 
-### Logout Route
+Finally add the Slim Auth middlware to your app.
+
+``` php
+$app->add($app->getContainer()->get('slimAuthRedirectMiddleware'));
+```
+
+### Example Login Route
+
+Using the `Authenticator` to authenticate users might be accomplished in this manner.
+
+```php
+$app->map(['GET', 'POST'], '/login', function ($request, $response, $args) {
+    $params = $request->getParsedBody();
+
+    if ($request->isPost()) {
+        $username = $params['username'];
+        $password = $params['password'];
+
+        $result = $this->get('authenticator')->authenticate($username, $password);
+
+        if ($result->isValid()) {
+            // Success! Redirect somewhere.
+        }
+
+        // Login failed, handle error here
+    }
+
+    // Render login view here, perhaps.
+
+    return $response;
+});
+```
+
+### Example Logout Route
 
 As authentication stores the authenticated user's identity, logging out
 consists of nothing more than clearing that identity. Clearing the identity is
 handled by `Authenticator::logout`.
 
 ``` php
-$app->get('/logout', function () use ($app) {
-    $app->authenticator->logout();
-    $app->redirect('/');
+$app->get('/logout', function ($request, $response, $args) {
+    $this->get('authenticator')->logout();
+    // Redirect somewhere after logout.
 });
 ```
 
@@ -272,7 +302,7 @@ That should get you most of the way. I'll complete documentation as soon as I'm
 able, but can't currently commit to an ETA. Again, please feel free to open and
 issue with any questions you might have regarding implementation.
 
-Thanks for considering Slim Auth for your project.
+Thanks for considering Slim Auth for your Slim 3.x project.
 
 [1]: http://slimframework.com/
 [2]: http://framework.zend.com/manual/current/en/modules/zend.authentication.intro.html

@@ -265,6 +265,11 @@ Finally add the Slim Auth middlware to your app.
 $app->add($app->getContainer()->get('slimAuthRedirectMiddleware'));
 ```
 
+NOTE: You may choose between the `slimAuthRedirectMiddleware` service (which
+uses the RedirectHandler) or the `slimAuthThrowHttpExceptionMiddleware` service
+(which uses the ThrowHttpExceptionHandler), or you can create your own handler
+and register your own service.
+
 ### Overriding SlimAuthProvider Defaults
 
 The following services/properties can be set _before_ calling

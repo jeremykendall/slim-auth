@@ -98,6 +98,16 @@ final class Authorization
     }
 
     /**
+     * Gets handler.
+     *
+     * @return AuthHandler
+     */
+    public function getHandler()
+    {
+        return $this->handler;
+    }
+
+    /**
      * Gets role from user's identity.
      *
      * @param mixed $identity User's identity. If null, returns role 'guest'

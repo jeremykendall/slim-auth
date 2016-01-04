@@ -32,6 +32,7 @@
             passthru="${passthru}"
             dir="${project.basedir}"
             command="phpunit
+                --colors=always
                 --log-junit=${project.basedir}/build/logs/junit.xml
                 --coverage-clover=${project.basedir}/build/logs/clover.xml
                 --coverage-html=${project.basedir}/build/coverage" />

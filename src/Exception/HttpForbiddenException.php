@@ -13,7 +13,7 @@ namespace JeremyKendall\Slim\Auth\Exception;
 /**
  * HTTP 403 Forbidden Exception.
  *
- * @see https://httpstatuses.com/403
+ * @see https://httpstatuses.com/403 403 Forbidden - httpstatuses.com
  */
 final class HttpForbiddenException extends \RuntimeException implements HttpException
 {

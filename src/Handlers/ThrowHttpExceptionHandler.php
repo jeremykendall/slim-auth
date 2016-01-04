@@ -20,7 +20,13 @@ use Psr\Http\Message\ResponseInterface;
 final class ThrowHttpExceptionHandler implements AuthHandler
 {
     /**
-     * {@inheritDoc}
+     * Throws HttpUnauthorizedException to be handled elsewhere.
+     *
+     * @param ResponseInterface $response
+     *
+     * @return ResponseInterface
+     *
+     * @throws \JeremyKendall\Slim\Auth\Exception\HttpUnauthorizedException
      */
     public function notAuthenticated(ResponseInterface $response)
     {
@@ -28,7 +34,13 @@ final class ThrowHttpExceptionHandler implements AuthHandler
     }
 
     /**
-     * {@inheritDoc}
+     * Throws HttpForbiddenException to be handled elsewhere.
+     *
+     * @param ResponseInterface $response
+     *
+     * @return ResponseInterface
+     *
+     * @throws \JeremyKendall\Slim\Auth\Exception\HttpForbiddenException
      */
     public function notAuthorized(ResponseInterface $response)
     {

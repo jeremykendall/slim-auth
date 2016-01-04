@@ -18,7 +18,7 @@ namespace JeremyKendall\Slim\Auth\Exception;
  * are not authenticated and the resource requires authentication. That's 
  * AUTHENTICATION, not AUTHORIZATION, so confusing, but there ya go.
  *
- * @see https://httpstatuses.com/401
+ * @see https://httpstatuses.com/401 401 Unauthorized - httpstatuses.com
  */
 final class HttpUnauthorizedException extends \RuntimeException implements HttpException
 {

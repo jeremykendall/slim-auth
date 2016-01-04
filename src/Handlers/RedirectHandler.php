@@ -40,7 +40,11 @@ final class RedirectHandler implements AuthHandler
     }
 
     /**
-     * {@inheritDoc}
+     * Redirects request to $redirectNotAuthenticated.
+     *
+     * @param ResponseInterface $response
+     *
+     * @return ResponseInterface
      */
     public function notAuthenticated(ResponseInterface $response)
     {
@@ -49,7 +53,11 @@ final class RedirectHandler implements AuthHandler
     }
 
     /**
-     * {@inheritDoc}
+     * Redirects request to $redirectNotAuthorized.
+     *
+     * @param ResponseInterface $response
+     *
+     * @return ResponseInterface
      */
     public function notAuthorized(ResponseInterface $response)
     {

@@ -187,9 +187,15 @@ The above exceptions implement the `HttpException` interface, which provides a `
 
 ### RedirectHandler
 
-The `RedirectHandler` allows you to specify redirect locations in response to authentication and authorization status. The `RedirectHandler` constructor takes two `string` arguments: `$redirectNotAuthenticated` and `$redirectNotAuthorized`.
+The `RedirectHandler` allows you to specify redirect locations in response to
+authentication and authorization status. The `RedirectHandler` constructor
+takes two `string` arguments: `$redirectNotAuthenticated` and
+`$redirectNotAuthorized`.
 
-For example, a common use case is to redirect requests that should be authenticated to a `/login` route and forbidden requests to a route that informs the user what's happening, perhaps `/403`. The corresponding `RedirectHandler` would be created like so:
+For example, a common use case is to redirect requests that should be
+authenticated to a `/login` route and forbidden requests to a route that
+informs the user what's happening, perhaps `/403`. The corresponding
+`RedirectHandler` would be created like so:
 
 ``` php
 $handler = new RedirectHandler('/login', '/403');

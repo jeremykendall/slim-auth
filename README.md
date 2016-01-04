@@ -105,7 +105,7 @@ class Acl extends ZendAcl
         // Now we allow or deny a role's access to resources. The third argument
         // is 'privilege'. We're using HTTP method as 'privilege'.
         $this->allow('guest', '/', 'GET');
-        $this->allow('guest', '/login', array('GET', 'POST'));
+        $this->allow('guest', '/login', ['GET', 'POST']);
         $this->allow('guest', '/logout', 'GET');
 
         $this->allow('member', '/member', 'GET');

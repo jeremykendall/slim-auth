@@ -163,4 +163,15 @@ class PdoAdapter extends AbstractAdapter
     {
         return $this->credentialColumn;
     }
+    
+    /**
+     * Get getRoleColumn.
+     *
+     * @return string getRoleColumn
+     */
+    public function getRoleColumn()
+    {
+        return $this->roleColumn;
+    }
+    
 }

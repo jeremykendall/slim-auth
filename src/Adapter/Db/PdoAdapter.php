@@ -41,6 +41,11 @@ class PdoAdapter extends AbstractAdapter
     private $credentialColumn;
 
     /**
+     * @var string column to be used as the role
+     */
+    private $roleColumn;
+
+    /**
      * @var PasswordValidatorInterface Handles password validation
      */
     protected $passwordValidator;
@@ -59,12 +64,14 @@ class PdoAdapter extends AbstractAdapter
         $tableName,
         $identityColumn,
         $credentialColumn,
+        $roleColumn,
         PasswordValidatorInterface $passwordValidator
     ) {
         $this->db = $db;
         $this->tableName = $tableName;
         $this->identityColumn = $identityColumn;
         $this->credentialColumn = $credentialColumn;
+        $this->roleColumn = $roleColumn;
         $this->passwordValidator = $passwordValidator;
     }
 
@@ -92,7 +99,11 @@ class PdoAdapter extends AbstractAdapter
         if ($validationResult->isValid()) {
             // Don't store password in identity
             unset($user[$this->getCredentialColumn()]);
-
+            // Copy role column into role if set differently
+            if ($this->getRoleColumn() != 'role') {
+              $user['role'] = $user[$this->getRoleColumn()];
+              unset($user[$this->getRoleColumn()]);
+            }
             return new AuthenticationResult(AuthenticationResult::SUCCESS, $user, array());
         }
 

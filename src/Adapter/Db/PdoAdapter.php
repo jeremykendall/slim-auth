@@ -86,7 +86,7 @@ class PdoAdapter extends AbstractAdapter
         }
 
         $validationResult = $this->passwordValidator->isValid(
-            $this->credential, $user[$this->credentialColumn], $user['id']
+            $this->credential, $user[$this->credentialColumn], $user[$this->identityColumn]
         );
 
         if ($validationResult->isValid()) {

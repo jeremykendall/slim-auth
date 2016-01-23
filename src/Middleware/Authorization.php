@@ -67,7 +67,7 @@ final class Authorization
      * @param ResponseInterface      $response
      * @param callable               $next
      *
-     * @return ResponseInterface Status 401 if not authenticated, 403 if not authorized
+     * @return ResponseInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {

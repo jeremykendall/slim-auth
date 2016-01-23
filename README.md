@@ -68,8 +68,12 @@ $container = new \Slim\Container([
 ]);
 ```
 
+NOTE: If you use the `JeremyKendall\Slim\Auth\ServiceProvider\SlimAuthProvider`
+to help configure Slim Auth, `determineRouteBeforeAppMiddleware` will be set to
+`true` for you.
+
 > Thanks to @urshofer and @pip8786 for #37 and pointing out that I'd left this
-> critical bit out of the documentation. Sorry about that.
+> critical bit out of the documentation. Sorry about that!
 
 ### Database
 

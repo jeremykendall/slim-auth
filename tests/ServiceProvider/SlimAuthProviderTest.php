@@ -140,6 +140,21 @@ class SlimAuthProviderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * The `determineRouteBeforeAppMiddleware` setting must be set to true or 
+     * Slim Auth will not work.
+     *
+     * @group issue37
+     */
+    public function testProviderSetsdetermineRouteBeforeAppMiddlewareToTrue()
+    {
+        $container = $this->getSlimContainer();
+        $this->assertFalse($container['settings']['determineRouteBeforeAppMiddleware']);
+
+        $container->register($this->provider);
+        $this->assertTrue($container['settings']['determineRouteBeforeAppMiddleware']);
+    }
+
+    /**
      * @return \Slim\Container Default Slim container
      */
     private function getSlimContainer()

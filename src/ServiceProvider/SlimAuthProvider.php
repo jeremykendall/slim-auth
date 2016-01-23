@@ -29,6 +29,10 @@ final class SlimAuthProvider implements ServiceProviderInterface
      */
     public function register(Container $pimple)
     {
+        // This must be set to true or Slim Auth will not work.
+        // @see https://github.com/jeremykendall/slim-auth/issues/37
+        $pimple['settings']['determineRouteBeforeAppMiddleware'] = true;
+
         $pimple['auth'] = function ($c) {
             $auth = new \Zend\Authentication\AuthenticationService();
             $auth->setAdapter($c->get('authAdapter'));

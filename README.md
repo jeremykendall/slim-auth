@@ -52,6 +52,25 @@ require 'vendor/autoload.php';
 
 ## Preparing Your App For Slim Auth
 
+### Slim Configuration
+
+Slim Auth relies on [Middleware](http://www.slimframework.com/docs/concepts/middleware.html)
+to do its job. More specifically it relies on being able to match the route
+pattern being dispatched against resources defined in the ACL. That means the
+`determineRouteBeforeAppMiddleware` setting MUST be set to `true` or the Slim
+Auth middleware will not work.
+
+``` php
+$container = new \Slim\Container([
+    'settings' => [
+        'determineRouteBeforeAppMiddleware' => true,
+    ],
+]);
+```
+
+> Thanks to @urshofer and @pip8786 for #37 and pointing out that I'd left this
+> critical bit out of the documentation. Sorry about that.
+
 ### Database
 
 Your database should have a user table, and that table must have a `role`
